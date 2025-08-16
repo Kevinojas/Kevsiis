@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contexto ilimitado - Flowith Agent AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .slide {
+            width: 1500px;
+            height: 700px;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .blue-accent {
+            background-color: #3b82f6;
+        }
+        .context-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #3b82f6;
+        }
+        .context-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.1);
+        }
+        .infinite-scroll {
+            animation: scroll 20s linear infinite;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .data-block {
+            background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+            border: 1px solid #bfdbfe;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide flex flex-col">
+        <!-- Header -->
+        <div class="px-16 pt-12 pb-6">
+            <div class="flex items-center">
+                <div class="w-14 h-14 rounded-full blue-accent flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h1 class="text-4xl font-bold gradient-text">Contexto ilimitado</h1>
+                    <p class="text-lg text-gray-600 mt-1">Capacidad para procesar información sin límites</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 px-16 pb-12 flex flex-col">
+            <div class="flex gap-8 h-full">
+                <!-- Left side - Visualization -->
+                <div class="w-2/5 flex flex-col">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg h-full flex flex-col">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Capacidad infinita</h2>
+                        
+                        <div class="flex-1 flex flex-col items-center justify-center">
+                            <div class="relative w-48 h-48 mb-6">
+                                <div class="absolute inset-0 rounded-full bg-blue-200 opacity-30 animate-ping"></div>
+                                <div class="absolute inset-4 rounded-full bg-blue-300 opacity-40 animate-ping" style="animation-delay: 0.5s"></div>
+                                <div class="absolute inset-8 rounded-full bg-blue-400 opacity-50 animate-ping" style="animation-delay: 1s"></div>
+                                <div class="absolute inset-12 rounded-full bg-blue-500 opacity-60 animate-ping" style="animation-delay: 1.5s"></div>
+                                <div class="absolute inset-16 rounded-full bg-blue-600 opacity-70 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="text-5xl font-bold text-blue-600 mb-2">∞</div>
+                                <p class="text-gray-600 font-medium">Contexto sin límites</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <div class="bg-white rounded-xl p-4 shadow-md">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">Retención de contexto</span>
+                                    <span class="text-sm font-bold text-blue-600">Ilimitada</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side - Features -->
+                <div class="w-3/5 flex flex-col">
+                    <div class="bg-white rounded-2xl p-6 shadow-lg h-full flex flex-col">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Ventajas del contexto ilimitado:</h2>
+                        
+                        <div class="space-y-4 flex-1 flex flex-col justify-center">
+                            <div class="context-card bg-blue-50 rounded-xl p-5">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-full blue-accent flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-semibold text-gray-800">Procesamiento sin límites</h3>
+                                        <p class="text-gray-600 mt-1">Flowith Neo puede retener y procesar cantidades ilimitadas de información</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="context-card bg-blue-50 rounded-xl p-5">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-full blue-accent flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-semibold text-gray-800">Ideal para proyectos complejos</h3>
+                                        <p class="text-gray-600 mt-1">Perfecto para manejar proyectos grandes y multifacéticos sin perder información</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="context-card bg-blue-50 rounded-xl p-5">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-full blue-accent flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-semibold text-gray-800">Continuidad perfecta</h3>
+                                        <p class="text-gray-600 mt-1">Nunca pierde el hilo de la conversación o la tarea, sin importar su duración</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Data visualization -->
+                        <div class="mt-6">
+                            <div class="overflow-hidden">
+                                <div class="flex infinite-scroll">
+                                    <div class="flex space-x-3">
+                                        <div class="data-block rounded-lg px-3 py-2 text-sm font-medium text-blue-700 whitespace-nowrap">Proyecto A</div>
+                                        <div class="data-block rounded-lg px-3 py-2 text-sm font-medium text-blue-700 whitespace-nowrap">Proyecto B</div>
+                                        <div class="data-block rounded-lg px-3 py-2 text-sm font-medium text-blue-700 whitespace-nowrap">Proyecto C</div>
+                                        <div class="data-block rounded-lg px-3 py-2 text-sm font-medium text-blue-700 whitespace-nowrap">Proyecto D</div>
+                                        <div class="data-block rounded-lg px-3 py-2 text-sm font-medium text-blue-700 whitespace-nowrap">Proyecto E</div>
+                                        <div class="data-block rounded-lg px-3 py-2 text-sm font-medium text-blue-700 whitespace-nowrap">Proyecto A</div>
+                                        <div class="data-block rounded-lg px-3 py-2 text-sm font-medium text-blue-700 whitespace-nowrap">Proyecto B</div>
+                                        <div class="data-block rounded-lg px-3 py-2 text-sm font-medium text-blue-700 whitespace-nowrap">Proyecto C</div>
+                                        <div class="data-block rounded-lg px-3 py-2 text-sm font-medium text-blue-700 whitespace-nowrap">Proyecto D</div>
+                                        <div class="data-block rounded-lg px-3 py-2 text-sm font-medium text-blue-700 whitespace-nowrap">Proyecto E</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-center text-gray-500 text-sm mt-2">Múltiples proyectos gestionados simultáneamente</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-16 py-4 flex justify-between items-center border-t border-gray-200">
+            <div class="text-sm text-gray-500">Presentación: Flowith Agent AI</div>
+            <div class="text-sm text-gray-500">Diapositiva 4</div>
+        </div>
+    </div>
+</body>
+</html>

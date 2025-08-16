@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agente autónomo (Flowith Oracle/Neo) - Flowith Agent AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .slide {
+            width: 700px;
+            height: 1500px;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .blue-accent {
+            background-color: #3b82f6;
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #3b82f6;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.1);
+        }
+        .agent-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide flex flex-col">
+        <!-- Header -->
+        <div class="px-16 pt-12 pb-6">
+            <div class="flex items-center">
+                <div class="w-14 h-14 rounded-full blue-accent flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h1 class="text-4xl font-bold gradient-text">Agente autónomo (Flowith Oracle/Neo)</h1>
+                    <p class="text-lg text-gray-600 mt-1">Inteligencia que trabaja por ti</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 px-16 pb-12 flex flex-col">
+            <div class="flex gap-8 h-full">
+                <!-- Left side - Agent visualization -->
+                <div class="w-2/5 flex flex-col">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-lg h-full flex flex-col items-center justify-center">
+                        <div class="agent-icon mb-6">
+                            <div class="w-32 h-32 rounded-full blue-accent flex items-center justify-center shadow-xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Inteligencia Autónoma</h2>
+                        <p class="text-gray-600 text-center px-4">Flowith Oracle/Neo es un sistema de IA que puede planificar, ejecutar y optimizar tareas complejas de forma independiente</p>
+                        
+                        <div class="mt-8 w-full">
+                            <div class="bg-white rounded-xl p-4 shadow-md">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">Autonomía</span>
+                                    <span class="text-sm font-bold text-blue-600">95%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl p-4 shadow-md mt-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">Eficiencia</span>
+                                    <span class="text-sm font-bold text-blue-600">90%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 90%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side - Features -->
+                <div class="w-3/5 flex flex-col">
+                    <div class="bg-white rounded-2xl p-6 shadow-lg h-full">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Características principales:</h2>
+                        <div class="space-y-4 h-full flex flex-col justify-center">
+                            <div class="feature-card bg-blue-50 rounded-xl p-5">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-full blue-accent flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-semibold text-gray-800">Planificación autónoma</h3>
+                                        <p class="text-gray-600 mt-1">Descompone tareas complejas de forma independiente sin intervención humana</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="feature-card bg-blue-50 rounded-xl p-5">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-full blue-accent flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-semibold text-gray-800">Ejecución ilimitada</h3>
+                                        <p class="text-gray-600 mt-1">Realiza tareas multi-paso de manera continua sin necesidad de supervisión</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="feature-card bg-blue-50 rounded-xl p-5">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-full blue-accent flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-semibold text-gray-800">Invocación ilimitada de herramientas</h3>
+                                        <p class="text-gray-600 mt-1">Utiliza múltiples recursos y herramientas durante el proceso de ejecución</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="feature-card bg-blue-50 rounded-xl p-5">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-full blue-accent flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-semibold text-gray-800">Autooptimización</h3>
+                                        <p class="text-gray-600 mt-1">Aprende y mejora sus resultados de forma continua con cada ejecución</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-16 py-4 flex justify-between items-center border-t border-gray-200">
+            <div class="text-sm text-gray-500">Presentación: Flowith Agent AI</div>
+            <div class="text-sm text-gray-500">Diapositiva 3</div>
+        </div>
+    </div>
+</body>
+</html>
