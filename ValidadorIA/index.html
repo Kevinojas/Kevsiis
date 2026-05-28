@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ValidadorIA - ¿Tu producto genera dinero?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .bg-grid {
+            background-image:
+                linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        .glow { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; }
+        .glow-1 { width: 600px; height: 600px; background: rgba(59,130,246,0.12); top: -200px; left: -200px; }
+        .glow-2 { width: 500px; height: 500px; background: rgba(139,92,246,0.1); bottom: -150px; right: -150px; }
+        .glow-3 { width: 400px; height: 400px; background: rgba(236,72,153,0.06); top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px; position: relative; z-index: 1; }
+
+        header { text-align: center; padding: 60px 0 40px; }
+        .logo {
+            display: inline-flex; align-items: center; gap: 14px;
+            background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2);
+            padding: 12px 28px; border-radius: 100px; margin-bottom: 24px;
+        }
+        .logo-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 18px; color: white;
+        }
+        .logo span { font-size: 14px; font-weight: 600; color: #93c5fd; letter-spacing: 0.5px; }
+        h1 { font-size: 56px; font-weight: 900; line-height: 1.1; margin-bottom: 16px; background: linear-gradient(135deg, #f8fafc 0%, #93c5fd 50%, #c4b5fd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .subtitle { font-size: 18px; color: #64748b; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        .subtitle strong { color: #93c5fd; font-weight: 600; }
+        .ars-badge {
+            display: inline-block; margin-top: 12px;
+            background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2);
+            color: #4ade80; padding: 6px 20px; border-radius: 100px;
+            font-size: 13px; font-weight: 500;
+        }
+
+        .card {
+            background: rgba(15,15,25,0.8); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px; padding: 40px;
+            transition: border-color 0.3s;
+        }
+        .card:hover { border-color: rgba(59,130,246,0.15); }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group.full { grid-column: 1 / -1; }
+        label { display: block; font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, textarea, select {
+            width: 100%; padding: 14px 18px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px; color: #f1f5f9; font-size: 15px; font-family: 'Inter', sans-serif;
+            transition: all 0.3s; outline: none;
+        }
+        input:focus, textarea:focus, select:focus { border-color: #3b82f6; background: rgba(59,130,246,0.05); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        textarea { resize: vertical; min-height: 100px; }
+        input[type="number"] { -moz-appearance: textfield; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .input-hint { font-size: 12px; color: #475569; margin-top: 6px; }
+        select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; }
+        option { background: #1a1a2e; }
+
+        .btn {
+            padding: 16px 40px; border: none; border-radius: 16px;
+            font-size: 17px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif;
+            transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white; width: 100%;
+            box-shadow: 0 4px 20px rgba(59,130,246,0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(59,130,246,0.4); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.2); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .btn.loading .spinner { display: inline-block; }
+        .btn.loading .btn-text { display: none; }
+
+        .results { display: none; margin-top: 40px; }
+        .results.show { display: block; }
+
+        .verdict {
+            text-align: center; padding: 40px; border-radius: 24px; margin-bottom: 32px;
+            position: relative; overflow: hidden;
+        }
+        .verdict::before { content: ''; position: absolute; inset: 0; opacity: 0.08; border-radius: 24px; }
+        .verdict.yes { background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(16,185,129,0.08)); border: 1px solid rgba(34,197,94,0.2); }
+        .verdict.yes::before { background: radial-gradient(circle at 50% 0%, #22c55e, transparent 70%); }
+        .verdict.no { background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(220,38,38,0.08)); border: 1px solid rgba(239,68,68,0.2); }
+        .verdict.no::before { background: radial-gradient(circle at 50% 0%, #ef4444, transparent 70%); }
+        .verdict.maybe { background: linear-gradient(135deg, rgba(250,204,21,0.12), rgba(234,179,8,0.08)); border: 1px solid rgba(250,204,21,0.2); }
+        .verdict.maybe::before { background: radial-gradient(circle at 50% 0%, #eab308, transparent 70%); }
+
+        .verdict-icon { font-size: 56px; margin-bottom: 12px; position: relative; }
+        .verdict h2 { font-size: 42px; font-weight: 900; margin-bottom: 8px; position: relative; }
+        .verdict.yes h2 { color: #4ade80; }
+        .verdict.no h2 { color: #f87171; }
+        .verdict.maybe h2 { color: #facc15; }
+        .verdict p { color: #94a3b8; font-size: 16px; position: relative; }
+        .score-ring {
+            width: 90px; height: 90px; margin: 0 auto 16px; position: relative;
+        }
+        .score-ring svg { transform: rotate(-90deg); }
+        .score-ring .bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 6; }
+        .score-ring .progress { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1.5s ease; }
+        .score-value {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; font-weight: 800;
+        }
+        .verdict.yes .score-value { color: #4ade80; }
+        .verdict.no .score-value { color: #f87171; }
+        .verdict.maybe .score-value { color: #facc15; }
+
+        .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .metric {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px; padding: 20px;
+        }
+        .metric-label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .metric-value { font-size: 28px; font-weight: 800; color: #f1f5f9; margin-top: 6px; }
+        .metric-value.green { color: #4ade80; }
+        .metric-value.red { color: #f87171; }
+        .metric-value.yellow { color: #facc15; }
+        .metric-bar { height: 4px; border-radius: 4px; margin-top: 10px; background: rgba(255,255,255,0.06); overflow: hidden; }
+        .metric-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+
+        .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+        .analysis-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px; padding: 24px;
+        }
+        .analysis-card h3 { font-size: 14px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .analysis-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .analysis-item:last-child { border-bottom: none; }
+        .analysis-item .label { font-size: 14px; color: #94a3b8; }
+        .analysis-item .value { font-size: 14px; font-weight: 600; }
+        .analysis-item .value.good { color: #4ade80; }
+        .analysis-item .value.warn { color: #facc15; }
+        .analysis-item .value.bad { color: #f87171; }
+
+        .recommendations { margin-bottom: 32px; }
+        .recommendations h3 { font-size: 16px; font-weight: 700; color: #f1f5f9; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .rec-item {
+            display: flex; gap: 14px; padding: 16px 20px;
+            background: rgba(255,255,255,0.03); border-radius: 14px; margin-bottom: 10px;
+            border-left: 3px solid rgba(59,130,246,0.4);
+        }
+        .rec-item .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+        .rec-item .text { font-size: 14px; color: #cbd5e1; line-height: 1.5; }
+
+        .section-title { font-size: 20px; font-weight: 700; color: #f1f5f9; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 32px; }
+            .card { padding: 24px; }
+            .analysis-grid { grid-template-columns: 1fr; }
+            header { padding: 30px 0 24px; }
+            .verdict h2 { font-size: 28px; }
+            .metrics { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .metrics { grid-template-columns: 1fr; }
+        }
+
+        .confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+        .confetti {
+            position: absolute; width: 10px; height: 10px; top: -10px;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(59,130,246,0.5); }
+
+        .tag { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .tag-green { background: rgba(34,197,94,0.12); color: #4ade80; }
+        .tag-yellow { background: rgba(250,204,21,0.12); color: #facc15; }
+        .tag-red { background: rgba(239,68,68,0.12); color: #f87171; }
+        .tag-blue { background: rgba(59,130,246,0.12); color: #93c5fd; }
+    </style>
+</head>
+<body>
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+<div class="glow glow-3"></div>
+<div class="bg-grid" style="position:fixed;inset:0;z-index:0;"></div>
+
+<div class="container">
+    <header>
+        <div class="logo">
+            <div class="logo-icon">IA</div>
+            <span>ValidadorIA v2.0</span>
+        </div>
+        <h1>¿Tu producto genera dinero?</h1>
+        <p class="subtitle">
+            IA predictiva que analiza tu idea de negocio y te dice con precisión si <strong>generará ganancias</strong> antes de que gastes <strong>un solo peso argentino</strong>
+        </p>
+        <div class="ars-badge">🇦🇷 Optimizado para el mercado argentino</div>
+    </header>
+
+    <div class="card" id="formCard">
+        <form id="evalForm" autocomplete="off">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>¿Cuál es tu producto o idea de negocio?</label>
+                    <textarea id="producto" placeholder="Ej: Una app que conecta pasteleros freelance con clientes que necesitan tortas personalizadas. Los pasteleros pagan una comisión del 15% por cada pedido..." rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Categoría del producto</label>
+                    <select id="categoria">
+                        <option value="software">Software / App / SaaS</option>
+                        <option value="ecommerce">E-commerce / Tienda online</option>
+                        <option value="fisico">Producto físico</option>
+                        <option value="servicio">Servicio profesional</option>
+                        <option value="alimentos">Alimentos / Bebidas</option>
+                        <option value="contenido">Contenido / Cursos / Membresía</option>
+                        <option value="marketplace">Marketplace / Plataforma</option>
+                        <option value="consultoria">Consultoría / Asesoría</option>
+                        <option value="hardware">Hardware / Dispositivo</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Modelo de ingresos</label>
+                    <select id="modeloIngresos">
+                        <option value="venta_directa">Venta directa por unidad</option>
+                        <option value="suscripcion">Suscripción mensual/anual</option>
+                        <option value="comision">Comisión por transacción</option>
+                        <option value="publicidad">Publicidad / Sponsors</option>
+                        <option value="freemium">Freemium (gratis + premium)</option>
+                        <option value="licencia">Licencia / Derechos</option>
+                        <option value="mixto">Modelo mixto</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>💰 Precio de venta (por unidad/mes en ARS)</label>
+                    <input type="number" id="precio" placeholder="Ej: 15000" min="1" required>
+                    <div class="input-hint">¿Cuánto pagará cada cliente? En pesos argentinos.</div>
+                </div>
+
+                <div class="form-group">
+                    <label>📦 Costo por unidad (COGS / mes en ARS)</label>
+                    <input type="number" id="costoUnitario" placeholder="Ej: 5000" min="0" required>
+                    <div class="input-hint">Costo de producir o entregar el producto por cliente.</div>
+                </div>
+
+                <div class="form-group">
+                    <label>🚀 Inversión inicial necesaria (ARS)</label>
+                    <input type="number" id="inversionInicial" placeholder="Ej: 500000" min="0" required>
+                    <div class="input-hint">Desarrollo, equipamiento, stock inicial, etc.</div>
+                </div>
+
+                <div class="form-group">
+                    <label>📊 Clientes estimados por mes</label>
+                    <input type="number" id="clientesMes" placeholder="Ej: 100" min="1" required>
+                    <div class="input-hint">Proyección realista para los primeros 6 meses.</div>
+                </div>
+
+                <div class="form-group">
+                    <label>📈 Competencia en el mercado</label>
+                    <select id="competencia">
+                        <option value="baja">Baja — Poca o ninguna competencia directa</option>
+                        <option value="media">Media — Varios competidores, mercado fragmentado</option>
+                        <option value="alta" selected>Alta — Mercado saturado con jugadores fuertes</option>
+                        <option value="dominante">Dominante — Monopolio u oligopolio establecido</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>📱 ¿Tienes tracción o validación?</label>
+                    <select id="traccion">
+                        <option value="ninguna">Ninguna — Solo es una idea</option>
+                        <option value="encuestas">Validación inicial — Encuestas o entrevistas positivas</option>
+                        <option value="prototipo">Prototipo — MVP o prototipo funcional</option>
+                        <option value="ventas">Ventas iniciales — Ya tiene clientes pagando</option>
+                        <option value="crecimiento">Crecimiento — Clientes recurrentes y crecimiento</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>🧠 ¿Tienes experiencia en el rubro?</label>
+                    <select id="experiencia">
+                        <option value="ninguna">Ninguna — Arranco de cero</option>
+                        <option value="poca">Poca — Conocimientos básicos</option>
+                        <option value="moderada">Moderada — He trabajado en el rubro</option>
+                        <option value="alta" selected>Alta — Experto en el área</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>🏛️ ¿Costo de estructura fijo mensual? (ARS)</label>
+                    <input type="number" id="costosFijos" placeholder="Ej: 200000" min="0" required>
+                    <div class="input-hint">Alquiler, sueldos, servicios, marketing, etc.</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 28px;">
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="btn-text">🔮 Analizar mi producto ahora</span>
+                    <span class="spinner"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="results" id="results">
+        <div class="verdict" id="verdict">
+            <div class="score-ring" id="scoreRing">
+                <svg width="90" height="90" viewBox="0 0 90 90">
+                    <circle class="bg" cx="45" cy="45" r="38"/>
+                    <circle class="progress" id="scoreCircle" cx="45" cy="45" r="38"
+                        stroke-dasharray="238.76" stroke-dashoffset="238.76"/>
+                </svg>
+                <div class="score-value" id="scoreValue">0%</div>
+            </div>
+            <div class="verdict-icon" id="verdictIcon">✅</div>
+            <h2 id="verdictTitle">ANÁLISIS COMPLETADO</h2>
+            <p id="verdictSub">Procesando resultados...</p>
+        </div>
+
+        <div class="metrics" id="metricsContainer"></div>
+
+        <div class="analysis-grid">
+            <div class="analysis-card">
+                <h3>📊 Análisis Financiero</h3>
+                <div id="financialAnalysis"></div>
+            </div>
+            <div class="analysis-card">
+                <h3>🎯 Análisis de Mercado</h3>
+                <div id="marketAnalysis"></div>
+            </div>
+        </div>
+
+        <div class="recommendations">
+            <h3>💡 Recomendaciones inteligentes</h3>
+            <div id="recommendationsList"></div>
+        </div>
+
+        <div style="text-align:center;">
+            <button class="btn btn-primary" onclick="resetForm()" style="width:auto;padding:14px 32px;font-size:15px;">
+                🔄 Analizar otro producto
+            </button>
+        </div>
+    </div>
+
+    <footer style="text-align:center;padding:40px 0 20px;color:#334155;font-size:13px;">
+        ValidadorIA — IA predictiva de negocio para emprendedores argentinos
+    </footer>
+</div>
+
+<script>
+const CATEGORY_WEIGHTS = {
+    'software': { margen: 0.75, escalabilidad: 0.9, riesgo: 0.5 },
+    'ecommerce': { margen: 0.35, escalabilidad: 0.7, riesgo: 0.6 },
+    'fisico': { margen: 0.3, escalabilidad: 0.4, riesgo: 0.7 },
+    'servicio': { margen: 0.7, escalabilidad: 0.5, riesgo: 0.4 },
+    'alimentos': { margen: 0.4, escalabilidad: 0.5, riesgo: 0.7 },
+    'contenido': { margen: 0.85, escalabilidad: 0.85, riesgo: 0.3 },
+    'marketplace': { margen: 0.6, escalabilidad: 0.95, riesgo: 0.6 },
+    'consultoria': { margen: 0.8, escalabilidad: 0.5, riesgo: 0.35 },
+    'hardware': { margen: 0.4, escalabilidad: 0.3, riesgo: 0.85 },
+    'otro': { margen: 0.5, escalabilidad: 0.5, riesgo: 0.5 }
+};
+
+function normalize(val, min, max) {
+    return Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100));
+}
+
+function evaluateProduct(data) {
+    const cat = CATEGORY_WEIGHTS[data.categoria] || CATEGORY_WEIGHTS['otro'];
+
+    const margenBruto = data.precio - data.costoUnitario;
+    const margenPorcentaje = data.precio > 0 ? (margenBruto / data.precio) * 100 : 0;
+    const ingresosMensuales = data.precio * data.clientesMes;
+    const costosVariables = data.costoUnitario * data.clientesMes;
+    const gananciaBruta = ingresosMensuales - costosVariables;
+    const gananciaNetaMensual = gananciaBruta - data.costosFijos;
+    const mesesRecupero = gananciaNetaMensual > 0 ? data.inversionInicial / gananciaNetaMensual : 999;
+    const roi = data.inversionInicial > 0 ? (gananciaNetaMensual * 12 / data.inversionInicial) * 100 : 0;
+
+    const traccionScore = { 'ninguna': 0, 'encuestas': 20, 'prototipo': 40, 'ventas': 70, 'crecimiento': 95 };
+    const competenciaScore = { 'baja': 90, 'media': 60, 'alta': 30, 'dominante': 10 };
+    const experienciaScore = { 'ninguna': 0, 'poca': 20, 'moderada': 55, 'alta': 85 };
+
+    let score = 0;
+
+    // Financial score (40%)
+    let financialScore = 0;
+    financialScore += normalize(margenPorcentaje, 0, 80) * 0.35;
+    financialScore += normalize(ingresosMensuales, 0, 5000000) * 0.15;
+    financialScore += normalize(gananciaNetaMensual, -500000, 2000000) * 0.2;
+    const recupScore = mesesRecupero <= 3 ? 100 : mesesRecupero <= 6 ? 80 : mesesRecupero <= 12 ? 50 : mesesRecupero <= 24 ? 25 : 5;
+    financialScore += recupScore * 0.2;
+    financialScore += normalize(roi, -50, 300) * 0.1;
+    score += financialScore * 0.40;
+
+    // Market score (30%)
+    let marketScore = 0;
+    marketScore += traccionScore[data.traccion] * 0.30;
+    marketScore += competenciaScore[data.competencia] * 0.25;
+    marketScore += experienciaScore[data.experiencia] * 0.20;
+    marketScore += cat.escalabilidad * 100 * 0.15;
+    marketScore += cat.margen * 100 * 0.10;
+    score += marketScore * 0.30;
+
+    // Viability score (30%)
+    let viabilityScore = 0;
+    const puntoEquilibrio = data.costosFijos > 0 ? Math.ceil(data.costosFijos / Math.max(margenBruto, 1)) : 0;
+    const clientesVsEquilibrio = puntoEquilibrio > 0 ? (data.clientesMes / puntoEquilibrio) * 100 : 100;
+    viabilityScore += normalize(clientesVsEquilibrio, 0, 300) * 0.30;
+    viabilityScore += (gananciaNetaMensual > 0 ? normalize(gananciaNetaMensual, 0, 3000000) : 0) * 0.25;
+    viabilityScore += (margenBruto > 0 ? normalize(margenPorcentaje, 0, 80) : 0) * 0.20;
+    viabilityScore += cat.riesgo * 100 * 0.15;
+    viabilityScore += data.experiencia !== 'ninguna' ? 70 : 20;
+    score += viabilityScore * 0.30;
+
+    const finalScore = Math.round(Math.max(0, Math.min(100, score)));
+
+    // Determinar veredicto
+    let verdict, verdictEmoji, verdictClass;
+    if (finalScore >= 70) {
+        verdict = '¡SÍ GENERA DINERO! 🚀';
+        verdictEmoji = '✅';
+        verdictClass = 'yes';
+    } else if (finalScore >= 40) {
+        verdict = 'PUEDE GENERAR DINERO — CON RIESGOS ⚠️';
+        verdictEmoji = '⚡';
+        verdictClass = 'maybe';
+    } else {
+        verdict = 'NO GENERA DINERO — Alto riesgo ❌';
+        verdictEmoji = '❌';
+        verdictClass = 'no';
+    }
+
+    return {
+        finalScore,
+        verdict,
+        verdictEmoji,
+        verdictClass,
+        margenBruto,
+        margenPorcentaje: Math.round(margenPorcentaje * 10) / 10,
+        ingresosMensuales: Math.round(ingresosMensuales),
+        costosVariables: Math.round(costosVariables),
+        gananciaBruta: Math.round(gananciaBruta),
+        gananciaNetaMensual: Math.round(gananciaNetaMensual),
+        mesesRecupero: Math.round(mesesRecupero * 10) / 10,
+        roi: Math.round(roi * 10) / 10,
+        puntoEquilibrio,
+        traccionScore: traccionScore[data.traccion],
+        competenciaScore: competenciaScore[data.competencia],
+        experienciaScore: experienciaScore[data.experiencia],
+        financialScore: Math.round(financialScore),
+        marketScore: Math.round(marketScore),
+        viabilityScore: Math.round(viabilityScore),
+        cat
+    };
+}
+
+function getRecommendations(data, result) {
+    const recs = [];
+
+    if (result.margenPorcentaje < 30) {
+        recs.push({ icon: '📈', text: `Tu margen bruto es de solo ${result.margenPorcentaje}%. Necesitás subir el precio o reducir costos. Un margen saludable en Argentina debería ser > 50% por inflación y cargas impositivas.` });
+    }
+    if (result.mesesRecupero > 12) {
+        recs.push({ icon: '⏱️', text: `Tardarías ${result.mesesRecupero} meses en recuperar la inversión. Intentá reducir la inversión inicial o aumentar el precio para bajar ese número a menos de 6 meses.` });
+    }
+    if (result.gananciaNetaMensual <= 0) {
+        recs.push({ icon: '🔥', text: 'Con estos números, operás a pérdida cada mes. Necesitás urgentemente: (1) subir precios, (2) reducir costos fijos, o (3) conseguir más clientes.' });
+    }
+    if (data.competencia === 'alta' || data.competencia === 'dominante') {
+        recs.push({ icon: '🎯', text: 'Hay mucha competencia. Necesitás un diferenciador MUY claro. Investigá qué hacen mal tus competidores y convertí eso en tu ventaja.' });
+    }
+    if (data.traccion === 'ninguna') {
+        recs.push({ icon: '🧪', text: 'No validaste la idea con clientes reales. Antes de invertir un peso, vendé manualmente a 5-10 personas. Si no te compran, cambiá el enfoque.' });
+    }
+    if (data.experiencia === 'ninguna' || data.experiencia === 'poca') {
+        recs.push({ icon: '🎓', text: 'Te falta experiencia en el rubro. Asociate con alguien que ya tenga expertise o invertí 3 meses en aprender antes de lanzar.' });
+    }
+    if (result.puntoEquilibrio > data.clientesMes) {
+        recs.push({ icon: '📊', text: `Necesitás ${result.puntoEquilibrio} clientes/mes para cubrir costos, pero estimaste ${data.clientesMes}. Revisá tus precios o reducí costos fijos.` });
+    }
+    if (result.roi < 50) {
+        recs.push({ icon: '💵', text: `El ROI anual proyectado es de ${result.roi}%. Idealmente buscá > 100% para valer la pena en el contexto argentino.` });
+    }
+    if (data.precio < 5000 && data.categoria !== 'contenido') {
+        recs.push({ icon: '💡', text: 'El precio es muy bajo. En Argentina, con inflación y costos de transacción, productos de menos de $5000 ARS son difíciles de hacer rentables.' });
+    }
+    if (data.categoria === 'fisico' || data.categoria === 'alimentos') {
+        recs.push({ icon: '🚚', text: 'Los productos físicos en Argentina sufren mucho por logística e inflación. Considerá cobrar el 100% por adelantado y ajustar precios mensualmente.' });
+    }
+
+    if (recs.length === 0) {
+        recs.push({ icon: '🌟', text: 'Tu idea tiene buena pinta. Seguí adelante pero monitoreá las métricas semanalmente. El mercado argentino cambia rápido.' });
+    }
+
+    return recs.slice(0, 6);
+}
+
+function formatARS(n) {
+    if (Math.abs(n) >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+    if (Math.abs(n) >= 1000) return '$' + (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'K';
+    return '$' + n;
+}
+
+function animateScore(targetScore, verdictClass) {
+    const circle = document.getElementById('scoreCircle');
+    const scoreValue = document.getElementById('scoreValue');
+    const circumference = 238.76;
+    let current = 0;
+
+    const color = verdictClass === 'yes' ? '#4ade80' : verdictClass === 'no' ? '#f87171' : '#facc15';
+    circle.style.stroke = color;
+
+    const interval = setInterval(() => {
+        current += 1;
+        if (current > targetScore) {
+            current = targetScore;
+            clearInterval(interval);
+        }
+        const offset = circumference - (current / 100) * circumference;
+        circle.style.strokeDashoffset = offset;
+        scoreValue.textContent = current + '%';
+    }, 20);
+}
+
+function showResults(result, formData) {
+    const resultsEl = document.getElementById('results');
+    const verdictEl = document.getElementById('verdict');
+    const scoreValue = document.getElementById('scoreValue');
+
+    resultsEl.classList.add('show');
+    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    scoreValue.textContent = '0%';
+    verdictEl.className = 'verdict ' + result.verdictClass;
+    document.getElementById('verdictIcon').textContent = result.verdictEmoji;
+    document.getElementById('verdictTitle').textContent = result.verdict;
+    document.getElementById('verdictSub').textContent =
+        'Score de viabilidad: ' + result.finalScore + '% — Basado en análisis financiero, de mercado y de riesgo';
+
+    animateScore(result.finalScore, result.verdictClass);
+
+    if (result.verdictClass === 'yes') {
+        launchConfetti();
+    }
+
+    // Metrics
+    const metricsContainer = document.getElementById('metricsContainer');
+    const gananciaClass = result.gananciaNetaMensual > 0 ? 'green' : 'red';
+    const recupClass = result.mesesRecupero <= 6 ? 'green' : result.mesesRecupero <= 12 ? 'yellow' : 'red';
+    const margenClass = result.margenPorcentaje >= 50 ? 'green' : result.margenPorcentaje >= 25 ? 'yellow' : 'red';
+    const roiClass = result.roi >= 100 ? 'green' : result.roi >= 30 ? 'yellow' : 'red';
+
+    const margenColor = margenClass === 'green' ? '#4ade80' : margenClass === 'yellow' ? '#facc15' : '#f87171';
+    const gananciaColor = gananciaClass === 'green' ? '#4ade80' : '#f87171';
+
+    metricsContainer.innerHTML = `
+        <div class="metric">
+            <div class="metric-label">Margen Bruto</div>
+            <div class="metric-value ${margenClass}">${result.margenPorcentaje}%</div>
+            <div class="metric-bar"><div class="metric-bar-fill" style="width:${Math.min(result.margenPorcentaje, 100)}%;background:${margenColor}"></div></div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Ganancia Neta / Mes</div>
+            <div class="metric-value ${gananciaClass}">${formatARS(result.gananciaNetaMensual)}</div>
+            <div class="metric-bar"><div class="metric-bar-fill" style="width:${Math.min(Math.max((result.gananciaNetaMensual / 2000000) * 100, 0), 100)}%;background:${gananciaColor}"></div></div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Recupero de inversión</div>
+            <div class="metric-value ${recupClass}">${result.mesesRecupero === 999 ? '∞' : result.mesesRecupero} meses</div>
+            <div class="metric-bar"><div class="metric-bar-fill" style="width:${Math.max(100 - ((result.mesesRecupero / 24) * 100), 5)}%;background:${recupClass === 'green' ? '#4ade80' : recupClass === 'yellow' ? '#facc15' : '#f87171'}"></div></div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">ROI Anual</div>
+            <div class="metric-value ${roiClass}">${result.roi}%</div>
+            <div class="metric-bar"><div class="metric-bar-fill" style="width:${Math.min(Math.max(result.roi, 0), 200)}%;background:${roiClass === 'green' ? '#4ade80' : roiClass === 'yellow' ? '#facc15' : '#f87171'}"></div></div>
+        </div>
+    `;
+
+    // Financial analysis
+    document.getElementById('financialAnalysis').innerHTML = `
+        <div class="analysis-item"><span class="label">Precio venta</span><span class="value good">${formatARS(formData.precio)}</span></div>
+        <div class="analysis-item"><span class="label">Costo unitario</span><span class="value">${formatARS(formData.costoUnitario)}</span></div>
+        <div class="analysis-item"><span class="label">Margen bruto</span><span class="value ${margenClass}">${result.margenPorcentaje}%</span></div>
+        <div class="analysis-item"><span class="label">Ingresos mensuales</span><span class="value">${formatARS(result.ingresosMensuales)}</span></div>
+        <div class="analysis-item"><span class="label">Costos variables</span><span class="value">${formatARS(result.costosVariables)}</span></div>
+        <div class="analysis-item"><span class="label">Costos fijos/mes</span><span class="value">${formatARS(formData.costosFijos)}</span></div>
+        <div class="analysis-item"><span class="label">Ganancia neta/mes</span><span class="value ${gananciaClass}">${formatARS(result.gananciaNetaMensual)}</span></div>
+        <div class="analysis-item"><span class="label">Inversión inicial</span><span class="value">${formatARS(formData.inversionInicial)}</span></div>
+        <div class="analysis-item"><span class="label">Recupero inversión</span><span class="value ${recupClass}">${result.mesesRecupero === 999 ? 'Nunca' : result.mesesRecupero + ' meses'}</span></div>
+        <div class="analysis-item"><span class="label">ROI anual</span><span class="value ${roiClass}">${result.roi}%</span></div>
+        <div class="analysis-item"><span class="label">Punto de equilibrio</span><span class="value">${result.puntoEquilibrio} clientes/mes</span></div>
+    `;
+
+    // Market analysis
+    const traccClass = formData.traccion === 'ninguna' ? 'bad' : formData.traccion === 'encuestas' ? 'warn' : 'good';
+    const compClass = formData.competencia === 'baja' ? 'good' : formData.competencia === 'media' ? 'warn' : 'bad';
+    const expClass = formData.experiencia === 'alta' ? 'good' : formData.experiencia === 'moderada' ? 'warn' : 'bad';
+
+    const traccLabels = { 'ninguna': 'Ninguna', 'encuestas': 'Validación inicial', 'prototipo': 'Prototipo/MVP', 'ventas': 'Ventas iniciales', 'crecimiento': 'Crecimiento' };
+    const compLabels = { 'baja': 'Baja', 'media': 'Media', 'alta': 'Alta', 'dominante': 'Dominante' };
+    const expLabels = { 'ninguna': 'Ninguna', 'poca': 'Poca', 'moderada': 'Moderada', 'alta': 'Alta' };
+    const catLabels = {
+        'software': 'Software / App / SaaS', 'ecommerce': 'E-commerce', 'fisico': 'Producto físico',
+        'servicio': 'Servicio profesional', 'alimentos': 'Alimentos / Bebidas', 'contenido': 'Contenido / Cursos',
+        'marketplace': 'Marketplace', 'consultoria': 'Consultoría', 'hardware': 'Hardware', 'otro': 'Otro'
+    };
+
+    document.getElementById('marketAnalysis').innerHTML = `
+        <div class="analysis-item"><span class="label">Categoría</span><span class="value">${catLabels[formData.categoria] || 'Otra'}</span></div>
+        <div class="analysis-item"><span class="label">Tracción</span><span class="value ${traccClass}">${traccLabels[formData.traccion]}</span></div>
+        <div class="analysis-item"><span class="label">Competencia</span><span class="value ${compClass}">${compLabels[formData.competencia]}</span></div>
+        <div class="analysis-item"><span class="label">Experiencia en rubro</span><span class="value ${expClass}">${expLabels[formData.experiencia]}</span></div>
+        <div class="analysis-item"><span class="label">Escalabilidad</span><span class="value good">${Math.round(result.cat.escalabilidad * 100)}%</span></div>
+        <div class="analysis-item"><span class="label">Margen potencial</span><span class="value ${result.cat.margen >= 0.6 ? 'good' : 'warn'}">${Math.round(result.cat.margen * 100)}%</span></div>
+        <div class="analysis-item"><span class="label">Riesgo del rubro</span><span class="value ${result.cat.riesgo >= 0.7 ? 'bad' : result.cat.riesgo >= 0.5 ? 'warn' : 'good'}">${Math.round(result.cat.riesgo * 100)}%</span></div>
+        <div class="analysis-item"><span class="label">Score financiero</span><span class="value ${result.financialScore >= 60 ? 'good' : result.financialScore >= 30 ? 'warn' : 'bad'}">${result.financialScore}/100</span></div>
+        <div class="analysis-item"><span class="label">Score de mercado</span><span class="value ${result.marketScore >= 60 ? 'good' : result.marketScore >= 30 ? 'warn' : 'bad'}">${result.marketScore}/100</span></div>
+        <div class="analysis-item"><span class="label">Score de viabilidad</span><span class="value ${result.viabilityScore >= 60 ? 'good' : result.viabilityScore >= 30 ? 'warn' : 'bad'}">${result.viabilityScore}/100</span></div>
+    `;
+
+    // Recommendations
+    const recs = getRecommendations(formData, result);
+    document.getElementById('recommendationsList').innerHTML = recs.map(r =>
+        `<div class="rec-item"><span class="icon">${r.icon}</span><span class="text">${r.text}</span></div>`
+    ).join('');
+}
+
+function launchConfetti() {
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    document.body.appendChild(container);
+    const colors = ['#3b82f6', '#4ade80', '#facc15', '#f87171', '#a78bfa', '#f472b6', '#2dd4bf', '#fb923c'];
+    const shapes = ['■', '●', '▲', '★'];
+    for (let i = 0; i < 80; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti';
+        el.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+        el.style.left = Math.random() * 100 + '%';
+        el.style.color = colors[Math.floor(Math.random() * colors.length)];
+        el.style.fontSize = (Math.random() * 16 + 8) + 'px';
+        el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        el.style.animationDelay = Math.random() * 1.5 + 's';
+        container.appendChild(el);
+    }
+    setTimeout(() => container.remove(), 5000);
+}
+
+function resetForm() {
+    document.getElementById('results').classList.remove('show');
+    document.getElementById('evalForm').reset();
+    document.getElementById('verdictTitle').textContent = 'ANÁLISIS COMPLETADO';
+    document.getElementById('scoreValue').textContent = '0%';
+    const circle = document.getElementById('scoreCircle');
+    circle.style.strokeDashoffset = '238.76';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('evalForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    const data = {
+        producto: document.getElementById('producto').value.trim(),
+        categoria: document.getElementById('categoria').value,
+        modeloIngresos: document.getElementById('modeloIngresos').value,
+        precio: Math.abs(parseInt(document.getElementById('precio').value) || 0),
+        costoUnitario: Math.abs(parseInt(document.getElementById('costoUnitario').value) || 0),
+        inversionInicial: Math.abs(parseInt(document.getElementById('inversionInicial').value) || 0),
+        clientesMes: Math.abs(parseInt(document.getElementById('clientesMes').value) || 0),
+        competencia: document.getElementById('competencia').value,
+        traccion: document.getElementById('traccion').value,
+        experiencia: document.getElementById('experiencia').value,
+        costosFijos: Math.abs(parseInt(document.getElementById('costosFijos').value) || 0)
+    };
+
+    // Simulate AI processing delay
+    setTimeout(() => {
+        const result = evaluateProduct(data);
+        showResults(result, data);
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }, 1800 + Math.random() * 1200);
+});
+
+// Floating input labels
+document.querySelectorAll('input, textarea, select').forEach(el => {
+    el.addEventListener('focus', function() {
+        this.closest('.form-group')?.querySelector('label')?.style.setProperty('color', '#93c5fd', 'important');
+    });
+    el.addEventListener('blur', function() {
+        this.closest('.form-group')?.querySelector('label')?.style.setProperty('color', '', '');
+    });
+});
+</script>
+</body>
+</html>
