@@ -3,357 +3,543 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agente IA - Validador de Negocio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Agente IA — Validador de Negocio | Consultoria.io</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* ── RESET & BASE ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            font-family: 'Roboto', sans-serif;
+            background: #f4f6fb;
+            color: #202124;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
         }
 
-        .app-container {
+        /* ── NAVBAR (estilo consultoria.io) ── */
+        .navbar {
             width: 100%;
-            max-width: 900px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24px;
-            overflow: hidden;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+            background: #ffffff;
+            border-bottom: 1px solid rgba(46,110,245,0.12);
+            box-shadow: 0 1px 4px rgba(60,64,67,0.12);
+            position: sticky; top: 0; z-index: 100;
         }
-
-        /* ── HEADER ── */
-        .header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            padding: 28px 36px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+        .navbar-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 32px;
+            height: 64px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            justify-content: space-between;
         }
-        .header-icon {
-            width: 52px; height: 52px;
-            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
-            box-shadow: 0 8px 20px rgba(0,210,255,0.3);
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #202124;
+            text-decoration: none;
+            letter-spacing: -0.3px;
         }
-        .header-text h1 {
-            font-size: 22px; font-weight: 800;
-            background: linear-gradient(90deg, #00d2ff, #a78bfa);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .navbar-brand span { color: #2E6EF5; }
+        .navbar-links { display: flex; gap: 28px; align-items: center; }
+        .navbar-links a {
+            color: #2E6EF5;
+            font-size: 15.5px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.15s;
         }
-        .header-text p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 3px; }
-        .status-badge {
-            margin-left: auto;
-            background: rgba(0,210,100,0.15);
-            border: 1px solid rgba(0,210,100,0.4);
-            color: #00d264;
-            font-size: 11px; font-weight: 600;
-            padding: 5px 12px; border-radius: 20px;
-            display: flex; align-items: center; gap: 6px;
+        .navbar-links a:hover { color: #2155CD; }
+        .navbar-badge {
+            display: flex; align-items: center; gap: 7px;
+            background: #f0f5ff;
+            border: 1px solid rgba(46,110,245,0.25);
+            border-radius: 4px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #2E6EF5;
         }
-        .status-dot {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: #00d264;
-            animation: pulse 1.5s infinite;
+        .badge-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #22c55e;
+            animation: blink 1.6s infinite;
         }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-        /* ── CHAT AREA ── */
-        .chat-area {
-            height: 480px;
-            overflow-y: auto;
-            padding: 28px 36px;
+        /* ── PAGE LAYOUT ── */
+        .page-wrapper {
+            width: 100%;
+            max-width: 860px;
+            padding: 40px 20px 60px;
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            scroll-behavior: smooth;
+            gap: 0;
         }
-        .chat-area::-webkit-scrollbar { width: 4px; }
-        .chat-area::-webkit-scrollbar-track { background: transparent; }
-        .chat-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
 
-        /* Mensajes */
-        .msg { display: flex; gap: 12px; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-
-        .msg.user { flex-direction: row-reverse; }
-
-        .avatar {
-            width: 36px; height: 36px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; flex-shrink: 0;
+        /* ── HERO HEADER ── */
+        .hero {
+            text-align: center;
+            padding: 48px 20px 36px;
         }
-        .avatar.ai { background: linear-gradient(135deg, #00d2ff, #3a7bd5); }
-        .avatar.user { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
-
-        .bubble {
-            max-width: 75%;
-            padding: 14px 18px;
-            border-radius: 16px;
-            font-size: 14px;
+        .hero-tag {
+            display: inline-block;
+            background: #f0f5ff;
+            border: 1px solid rgba(46,110,245,0.3);
+            color: #2E6EF5;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            font-weight: 700;
+            color: #202124;
+            line-height: 1.2;
+            margin-bottom: 14px;
+            max-width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hero h1 em {
+            font-style: italic;
+            color: #2E6EF5;
+        }
+        .hero p {
+            font-size: 17px;
+            color: #5f6368;
+            max-width: 560px;
+            margin: 0 auto;
             line-height: 1.6;
         }
-        .bubble.ai {
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.1);
+
+        /* ── CHAT CARD ── */
+        .chat-card {
+            background: #ffffff;
+            border: 1px solid rgba(60,64,67,0.15);
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(60,64,67,.32), 0 2px 6px rgba(60,64,67,.15), 0 1px 8px rgba(0,0,0,.1);
+            overflow: hidden;
+        }
+
+        /* Chat top bar */
+        .chat-topbar {
+            background: #2E6EF5;
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .chat-topbar-avatar {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .chat-topbar-info h3 {
+            font-size: 15px; font-weight: 700;
+            color: #ffffff;
+        }
+        .chat-topbar-info p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.75);
+            margin-top: 2px;
+        }
+        .chat-topbar-status {
+            margin-left: auto;
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 500;
             color: rgba(255,255,255,0.9);
-            border-top-left-radius: 4px;
+        }
+        .topbar-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #F8D481;
+            animation: blink 1.6s infinite;
+        }
+
+        /* ── MESSAGES AREA ── */
+        .chat-messages {
+            height: 440px;
+            overflow-y: auto;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #fafbff;
+        }
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgba(46,110,245,0.2); border-radius: 4px; }
+
+        /* Message rows */
+        .msg-row { display: flex; gap: 12px; animation: fadeUp 0.35s ease; }
+        .msg-row.user { flex-direction: row-reverse; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        .msg-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .msg-avatar.ai { background: #2E6EF5; }
+        .msg-avatar.user { background: #F8D481; }
+
+        .msg-content { max-width: 72%; display: flex; flex-direction: column; gap: 6px; }
+        .msg-row.user .msg-content { align-items: flex-end; }
+
+        .msg-name {
+            font-size: 11px; font-weight: 700;
+            color: #9aa0a6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .bubble {
+            padding: 14px 18px;
+            border-radius: 4px;
+            font-size: 14.5px;
+            line-height: 1.65;
+        }
+        .bubble.ai {
+            background: #ffffff;
+            border: 1px solid rgba(60,64,67,0.15);
+            color: #202124;
+            box-shadow: 0 1px 2px rgba(60,64,67,.12);
+            border-top-left-radius: 0;
         }
         .bubble.user {
-            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
-            color: white;
-            border-top-right-radius: 4px;
+            background: #2E6EF5;
+            color: #ffffff;
+            border-top-right-radius: 0;
         }
 
-        /* Resultado final */
-        .result-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 6px;
+        /* Quick option buttons */
+        .quick-opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+        .qbtn {
+            background: #ffffff;
+            border: 1.5px solid #2E6EF5;
+            color: #2E6EF5;
+            font-family: 'Roboto', sans-serif;
+            font-size: 13px; font-weight: 500;
+            padding: 7px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
         }
-        .result-card.verde { border-color: rgba(0,210,100,0.4); background: rgba(0,210,100,0.06); }
-        .result-card.rojo  { border-color: rgba(255,80,80,0.4);  background: rgba(255,80,80,0.06); }
-        .result-card.amarillo { border-color: rgba(255,200,0,0.4); background: rgba(255,200,0,0.06); }
-
-        .result-title {
-            font-size: 18px; font-weight: 800;
-            margin-bottom: 14px;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .result-title.verde { color: #00d264; }
-        .result-title.rojo  { color: #ff5050; }
-        .result-title.amarillo { color: #ffc800; }
-
-        .metric-grid {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 10px; margin-bottom: 14px;
-        }
-        .metric-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px; padding: 12px;
-        }
-        .metric-label { font-size: 11px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.5px; }
-        .metric-value { font-size: 20px; font-weight: 700; color: white; margin-top: 4px; }
-        .metric-value.pos { color: #00d264; }
-        .metric-value.neg { color: #ff5050; }
-        .metric-value.neu { color: #ffc800; }
-
-        .score-bar-wrap { margin: 14px 0; }
-        .score-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
-        .score-bar-bg { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-        .score-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
-        .score-bar-fill.verde { background: linear-gradient(90deg, #00d264, #00ff88); }
-        .score-bar-fill.rojo  { background: linear-gradient(90deg, #ff5050, #ff8080); }
-        .score-bar-fill.amarillo { background: linear-gradient(90deg, #ffc800, #ffe066); }
-
-        .recomendaciones { margin-top: 12px; }
-        .recomendaciones h4 { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-        .rec-item { display: flex; gap: 8px; font-size: 13px; color: rgba(255,255,255,0.8); margin-bottom: 6px; align-items: flex-start; }
-        .rec-icon { flex-shrink: 0; margin-top: 1px; }
+        .qbtn:hover { background: #2E6EF5; color: #ffffff; }
 
         /* Typing indicator */
-        .typing { display: flex; gap: 5px; align-items: center; padding: 14px 18px; }
-        .typing span {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: rgba(255,255,255,0.4);
+        .typing-row { display: flex; gap: 12px; align-items: center; }
+        .typing-bubble {
+            background: #ffffff;
+            border: 1px solid rgba(60,64,67,0.15);
+            border-radius: 4px;
+            border-top-left-radius: 0;
+            padding: 14px 18px;
+            display: flex; gap: 5px; align-items: center;
+        }
+        .typing-bubble span {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #2E6EF5; opacity: 0.5;
             animation: bounce 1.2s infinite;
         }
-        .typing span:nth-child(2) { animation-delay: 0.2s; }
-        .typing span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-8px)} }
+        .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-7px)} }
 
-        /* Quick options */
-        .quick-options {
-            display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+        /* ── PROGRESS STEPS ── */
+        .progress-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .step-tag {
+            font-size: 11px; font-weight: 500;
+            padding: 3px 10px; border-radius: 4px;
+            border: 1px solid rgba(60,64,67,0.2);
+            color: #9aa0a6;
+            background: #f8f9fa;
         }
-        .quick-btn {
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.15);
-            color: rgba(255,255,255,0.8);
-            font-size: 12px; font-weight: 500;
-            padding: 7px 14px; border-radius: 20px;
-            cursor: pointer; transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
+        .step-tag.done { background: #e8f5e9; border-color: #81c784; color: #2e7d32; }
+        .step-tag.active { background: #e8f0fe; border-color: #2E6EF5; color: #2E6EF5; font-weight: 700; }
+
+        /* ── RESULT CARD ── */
+        .result-card {
+            border: 1px solid rgba(60,64,67,0.2);
+            border-radius: 4px;
+            padding: 22px;
+            margin-top: 8px;
+            background: #ffffff;
         }
-        .quick-btn:hover {
-            background: rgba(0,210,255,0.15);
-            border-color: rgba(0,210,255,0.4);
-            color: #00d2ff;
+        .result-card.verde { border-left: 4px solid #22c55e; }
+        .result-card.amarillo { border-left: 4px solid #F1C233; }
+        .result-card.rojo { border-left: 4px solid #ef4444; }
+
+        .result-verdict {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px; font-weight: 700;
+            margin-bottom: 8px;
+            display: flex; align-items: center; gap: 10px;
         }
+        .result-verdict.verde { color: #15803d; }
+        .result-verdict.amarillo { color: #92400e; }
+        .result-verdict.rojo { color: #b91c1c; }
+
+        .result-desc {
+            font-size: 13.5px; color: #5f6368;
+            margin-bottom: 18px; line-height: 1.6;
+        }
+
+        /* Score bar */
+        .score-wrap { margin-bottom: 18px; }
+        .score-labels { display: flex; justify-content: space-between; font-size: 12px; color: #9aa0a6; margin-bottom: 6px; }
+        .score-track { height: 8px; background: #e8eaed; border-radius: 4px; overflow: hidden; }
+        .score-fill { height: 100%; border-radius: 4px; transition: width 1.2s ease; }
+        .score-fill.verde { background: linear-gradient(90deg, #22c55e, #4ade80); }
+        .score-fill.amarillo { background: linear-gradient(90deg, #F1C233, #fde68a); }
+        .score-fill.rojo { background: linear-gradient(90deg, #ef4444, #fca5a5); }
+
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; margin-bottom: 18px;
+        }
+        .metric-box {
+            background: #f8f9fa;
+            border: 1px solid rgba(60,64,67,0.12);
+            border-radius: 4px;
+            padding: 12px 14px;
+        }
+        .metric-lbl { font-size: 11px; color: #9aa0a6; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-val { font-size: 22px; font-weight: 700; color: #202124; margin-top: 4px; }
+        .metric-val.pos { color: #15803d; }
+        .metric-val.neg { color: #b91c1c; }
+        .metric-val.neu { color: #92400e; }
+
+        /* Recommendations */
+        .recs-title {
+            font-size: 12px; font-weight: 700; color: #9aa0a6;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .rec-row {
+            display: flex; gap: 10px; align-items: flex-start;
+            font-size: 13.5px; color: #202124;
+            margin-bottom: 8px; line-height: 1.5;
+        }
+        .rec-icon { flex-shrink: 0; font-size: 15px; margin-top: 1px; }
 
         /* ── INPUT AREA ── */
-        .input-area {
-            padding: 20px 36px 28px;
-            border-top: 1px solid rgba(255,255,255,0.08);
-            background: rgba(0,0,0,0.2);
+        .chat-input-area {
+            padding: 20px 28px 24px;
+            background: #ffffff;
+            border-top: 1px solid rgba(60,64,67,0.12);
         }
-        .input-wrap {
-            display: flex; gap: 12px; align-items: flex-end;
-        }
-        .input-field {
+        .input-row { display: flex; gap: 10px; align-items: flex-end; }
+        .chat-textarea {
             flex: 1;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 14px;
-            padding: 14px 18px;
-            color: white;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14.5px;
+            color: #202124;
+            background: #f8f9fa;
+            border: 1.5px solid rgba(60,64,67,0.2);
+            border-radius: 4px;
+            padding: 12px 16px;
             resize: none;
             outline: none;
-            transition: border-color 0.2s;
-            min-height: 52px; max-height: 120px;
+            min-height: 48px; max-height: 120px;
+            transition: border-color 0.15s;
+            line-height: 1.5;
         }
-        .input-field::placeholder { color: rgba(255,255,255,0.3); }
-        .input-field:focus { border-color: rgba(0,210,255,0.5); }
+        .chat-textarea::placeholder { color: #9aa0a6; }
+        .chat-textarea:focus { border-color: #2E6EF5; background: #ffffff; }
 
         .send-btn {
-            width: 52px; height: 52px;
-            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
-            border: none; border-radius: 14px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s; flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(0,210,255,0.3);
+            width: 48px; height: 48px;
+            background: #F8D481;
+            border: none; border-radius: 4px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s, transform 0.1s;
+            box-shadow: 0 1px 2px rgba(60,64,67,.32), 0 2px 6px rgba(60,64,67,.15);
+            flex-shrink: 0;
         }
-        .send-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,210,255,0.4); }
-        .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-        .send-btn svg { width: 20px; height: 20px; fill: white; }
+        .send-btn:hover { background: #F1C233; transform: scale(1.04); }
+        .send-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+        .send-btn svg { width: 20px; height: 20px; fill: #202124; }
 
-        .hint { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 10px; text-align: center; }
+        .input-hint {
+            font-size: 11.5px; color: #9aa0a6;
+            margin-top: 10px; text-align: center;
+        }
 
-        /* Progress steps */
-        .progress-steps {
-            display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap;
+        /* ── FOOTER ── */
+        .site-footer {
+            width: 100%;
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid rgba(60,64,67,0.1);
+            margin-top: 40px;
         }
-        .step-pill {
-            font-size: 11px; font-weight: 600;
-            padding: 4px 10px; border-radius: 20px;
-            background: rgba(255,255,255,0.08);
-            color: rgba(255,255,255,0.4);
-            border: 1px solid rgba(255,255,255,0.1);
+        .site-footer p {
+            font-size: 12px; color: #9aa0a6;
+            max-width: 700px; margin: 0 auto 10px;
+            line-height: 1.6;
         }
-        .step-pill.done { background: rgba(0,210,100,0.15); color: #00d264; border-color: rgba(0,210,100,0.3); }
-        .step-pill.active { background: rgba(0,210,255,0.15); color: #00d2ff; border-color: rgba(0,210,255,0.3); }
+        .footer-links { display: flex; justify-content: center; gap: 0; }
+        .footer-links a {
+            color: #9aa0a6; font-size: 14px;
+            text-decoration: none; margin: 0 10px;
+            transition: color 0.15s;
+        }
+        .footer-links a:hover { color: #2E6EF5; }
 
         /* Responsive */
         @media (max-width: 600px) {
-            .header { padding: 20px; }
-            .chat-area { padding: 20px; }
-            .input-area { padding: 16px 20px 24px; }
-            .metric-grid { grid-template-columns: 1fr; }
-            .bubble { max-width: 90%; }
+            .hero h1 { font-size: 28px; }
+            .chat-messages { padding: 18px; height: 380px; }
+            .chat-input-area { padding: 16px 18px 20px; }
+            .metrics-grid { grid-template-columns: 1fr; }
+            .navbar-links { display: none; }
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-
-    <!-- HEADER -->
-    <div class="header">
-        <div class="header-icon">🧠</div>
-        <div class="header-text">
-            <h1>Agente Validador de Negocio</h1>
-            <p>IA especializada en viabilidad financiera · Sin gastar un peso</p>
-        </div>
-        <div class="status-badge">
-            <div class="status-dot"></div>
-            EN LÍNEA
-        </div>
-    </div>
-
-    <!-- CHAT -->
-    <div class="chat-area" id="chatArea">
-        <!-- Mensaje inicial del agente -->
-        <div class="msg">
-            <div class="avatar ai">🧠</div>
-            <div>
-                <div class="bubble ai">
-                    <strong>¡Hola! Soy tu Agente Validador de Negocio.</strong><br><br>
-                    Mi trabajo es analizar si tu producto o servicio tiene potencial real de generar dinero <em>antes de que inviertas un solo peso argentino</em>.<br><br>
-                    Voy a hacerte preguntas clave sobre tu idea. Con tus respuestas calcularé métricas reales: margen, punto de equilibrio, demanda estimada y riesgo financiero.<br><br>
-                    ¿Listo para descubrir si tu idea vale la pena?
-                </div>
-                <div class="quick-options">
-                    <button class="quick-btn" onclick="startValidation()">🚀 Sí, validar mi idea</button>
-                    <button class="quick-btn" onclick="sendQuick('¿Cómo funciona el análisis?')">❓ ¿Cómo funciona?</button>
-                </div>
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+    <div class="navbar-inner">
+        <a class="navbar-brand" href="#">Consultoria<span>.io</span></a>
+        <div class="navbar-links">
+            <a href="#">Resultados</a>
+            <a href="#">Nosotros</a>
+            <div class="navbar-badge">
+                <div class="badge-dot"></div>
+                Agente IA activo
             </div>
         </div>
     </div>
+</nav>
 
-    <!-- INPUT -->
-    <div class="input-area">
-        <div class="input-wrap">
-            <textarea
-                class="input-field"
-                id="userInput"
-                placeholder="Escribí tu respuesta aquí..."
-                rows="1"
-                onkeydown="handleKey(event)"
-                oninput="autoResize(this)"
-            ></textarea>
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-            </button>
-        </div>
-        <div class="hint">Presioná Enter para enviar · Shift+Enter para nueva línea</div>
+<!-- ── MAIN ── -->
+<div class="page-wrapper">
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-tag">Herramienta gratuita</div>
+        <h1>¿Tu producto genera dinero<br><em>antes de invertir un peso?</em></h1>
+        <p>Nuestro agente de IA analiza la viabilidad financiera de tu negocio en minutos, con métricas reales y recomendaciones concretas.</p>
     </div>
 
-</div>
+    <!-- Chat Card -->
+    <div class="chat-card">
+
+        <!-- Top bar -->
+        <div class="chat-topbar">
+            <div class="chat-topbar-avatar">🧠</div>
+            <div class="chat-topbar-info">
+                <h3>Agente Validador de Negocio</h3>
+                <p>Consultoria.io · Análisis financiero inteligente</p>
+            </div>
+            <div class="chat-topbar-status">
+                <div class="topbar-dot"></div>
+                En línea
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <div class="msg-row">
+                <div class="msg-avatar ai">🧠</div>
+                <div class="msg-content">
+                    <div class="msg-name">Agente IA</div>
+                    <div class="bubble ai">
+                        <strong>¡Hola! Soy el Agente Validador de Negocio de Consultoria.io.</strong><br><br>
+                        Mi trabajo es analizar si tu producto o servicio tiene potencial real de generar dinero <em>antes de que inviertas un solo peso argentino</em>.<br><br>
+                        Te haré <strong>8 preguntas clave</strong>. Con tus respuestas calcularé métricas reales: margen, punto de equilibrio, demanda estimada y riesgo financiero.<br><br>
+                        ¿Empezamos?
+                    </div>
+                    <div class="quick-opts">
+                        <button class="qbtn" onclick="startValidation()">🚀 Sí, validar mi idea</button>
+                        <button class="qbtn" onclick="explainMode()">❓ ¿Cómo funciona?</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div class="chat-input-area">
+            <div class="input-row">
+                <textarea
+                    class="chat-textarea"
+                    id="userInput"
+                    placeholder="Escribí tu respuesta aquí..."
+                    rows="1"
+                    onkeydown="handleKey(event)"
+                    oninput="autoResize(this)"
+                ></textarea>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
+            <div class="input-hint">Presioná Enter para enviar · Shift+Enter para nueva línea</div>
+        </div>
+
+    </div><!-- /chat-card -->
+
+</div><!-- /page-wrapper -->
+
+<!-- ── FOOTER ── -->
+<footer class="site-footer">
+    <p>Consultoria.io, Genesis Ecommerce, Upscale Ecommerce y Polaris Mastermind — marcas registradas (España, Europa, EE.UU.)</p>
+    <div class="footer-links">
+        <a href="#">Privacidad y Cookies</a>
+        <a href="#">Aviso Legal</a>
+    </div>
+</footer>
 
 <script>
 // ══════════════════════════════════════════════
-//  ESTADO DEL AGENTE
+//  ESTADO
 // ══════════════════════════════════════════════
-const state = {
-    step: 0,
-    data: {},
-    waiting: false
-};
+const state = { step: 0, data: {}, waiting: false };
+let modoLibre = false;
 
-// Flujo de preguntas del agente
 const questions = [
     {
         key: 'producto',
-        ask: '¿Cuál es tu producto o servicio? Describilo en 1-2 oraciones.',
-        validate: v => v.length > 5,
+        ask: '¿Cuál es tu producto o servicio? Describilo brevemente.',
+        validate: v => v.trim().length > 5,
         errMsg: 'Por favor describí tu producto con un poco más de detalle.'
     },
     {
         key: 'precio',
         ask: '💰 ¿A qué precio pensás venderlo? (en pesos argentinos)',
-        validate: v => !isNaN(parseFloat(v.replace(/[$.]/g, '').replace(',','.'))),
+        validate: v => !isNaN(parseFloat(v.replace(/[$.]/g,'').replace(',','.'))),
         errMsg: 'Ingresá un número válido, por ejemplo: 15000',
-        parse: v => parseFloat(v.replace(/[$.]/g, '').replace(',','.'))
+        parse: v => parseFloat(v.replace(/[$.]/g,'').replace(',','.'))
     },
     {
         key: 'costo',
         ask: '🏭 ¿Cuánto te cuesta producir o entregar UNA unidad? (costo directo en $ARS)',
-        validate: v => !isNaN(parseFloat(v.replace(/[$.]/g, '').replace(',','.'))),
+        validate: v => !isNaN(parseFloat(v.replace(/[$.]/g,'').replace(',','.'))),
         errMsg: 'Ingresá el costo en pesos, por ejemplo: 6000',
-        parse: v => parseFloat(v.replace(/[$.]/g, '').replace(',','.'))
+        parse: v => parseFloat(v.replace(/[$.]/g,'').replace(',','.'))
     },
     {
-        key: 'costosijos',
+        key: 'costosFijos',
         ask: '🏢 ¿Cuánto son tus costos fijos mensuales? (alquiler, servicios, sueldos, etc. en $ARS)\n\nSi no tenés, escribí 0.',
-        validate: v => !isNaN(parseFloat(v.replace(/[$.]/g, '').replace(',','.'))),
+        validate: v => !isNaN(parseFloat(v.replace(/[$.]/g,'').replace(',','.'))),
         errMsg: 'Ingresá un número válido.',
-        parse: v => parseFloat(v.replace(/[$.]/g, '').replace(',','.'))
+        parse: v => parseFloat(v.replace(/[$.]/g,'').replace(',','.'))
     },
     {
         key: 'ventasMes',
@@ -364,8 +550,8 @@ const questions = [
     },
     {
         key: 'competencia',
-        ask: '🔍 ¿Ya existe competencia en el mercado?\n\nOpciones: (a) No existe / (b) Poca / (c) Mucha',
-        validate: v => ['a','b','c','no existe','poca','mucha'].some(x => v.toLowerCase().includes(x)),
+        ask: '🔍 ¿Ya existe competencia en el mercado?\n\n(a) No existe  ·  (b) Poca  ·  (c) Mucha',
+        validate: v => ['a','b','c','no','poca','mucha'].some(x => v.toLowerCase().includes(x)),
         errMsg: 'Respondé con a, b o c.',
         parse: v => {
             const l = v.toLowerCase();
@@ -376,79 +562,55 @@ const questions = [
     },
     {
         key: 'validacion',
-        ask: '🧪 ¿Ya hiciste alguna validación real? (encuestas, ventas de prueba, lista de espera, etc.)\n\nOpciones: (a) Sí, tengo clientes reales / (b) Sí, pero solo interés / (c) No, es solo una idea',
-        validate: v => ['a','b','c'].some(x => v.toLowerCase().includes(x)) || v.length > 3,
+        ask: '🧪 ¿Ya hiciste alguna validación real?\n\n(a) Sí, tengo clientes reales  ·  (b) Sí, pero solo interés  ·  (c) No, es solo una idea',
+        validate: v => ['a','b','c'].some(x => v.toLowerCase().includes(x)) || v.trim().length > 3,
         errMsg: 'Respondé con a, b o c.',
         parse: v => {
             const l = v.toLowerCase();
-            if (l.includes('a') || l.includes('clientes reales') || l.includes('ventas')) return 'clientes';
-            if (l.includes('b') || l.includes('interes') || l.includes('interés')) return 'interes';
+            if (l.includes('a') || l.includes('clientes') || l.includes('ventas')) return 'clientes';
+            if (l.includes('b') || l.includes('inter')) return 'interes';
             return 'idea';
         }
     },
     {
         key: 'inversion',
-        ask: '💸 ¿Cuánto dinero necesitás invertir para arrancar? (en $ARS, si es 0 también vale)',
-        validate: v => !isNaN(parseFloat(v.replace(/[$.]/g, '').replace(',','.'))),
+        ask: '💸 ¿Cuánto dinero necesitás invertir para arrancar? (en $ARS — si es 0, escribí 0)',
+        validate: v => !isNaN(parseFloat(v.replace(/[$.]/g,'').replace(',','.'))),
         errMsg: 'Ingresá un número válido.',
-        parse: v => parseFloat(v.replace(/[$.]/g, '').replace(',','.'))
+        parse: v => parseFloat(v.replace(/[$.]/g,'').replace(',','.'))
     }
 ];
 
 // ══════════════════════════════════════════════
-//  FUNCIONES DE CHAT
+//  HELPERS DE CHAT
 // ══════════════════════════════════════════════
-function addMsg(text, role, extra) {
-    const area = document.getElementById('chatArea');
-    const div = document.createElement('div');
-    div.className = `msg ${role}`;
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-    const avatar = document.createElement('div');
-    avatar.className = `avatar ${role}`;
-    avatar.textContent = role === 'ai' ? '🧠' : '👤';
-
-    const bubble = document.createElement('div');
-    bubble.className = `bubble ${role}`;
-    bubble.innerHTML = text.replace(/\n/g, '<br>');
-
-    if (role === 'ai') {
-        div.appendChild(avatar);
-        div.appendChild(document.createElement('div'));
-        div.lastChild.appendChild(bubble);
-        if (extra) div.lastChild.appendChild(extra);
-    } else {
-        div.appendChild(document.createElement('div'));
-        div.firstChild.appendChild(bubble);
-        div.appendChild(avatar);
-    }
-
-    area.appendChild(div);
+function addUserMsg(text) {
+    const area = document.getElementById('chatMessages');
+    const row = document.createElement('div');
+    row.className = 'msg-row user';
+    row.innerHTML = `
+        <div class="msg-content" style="align-items:flex-end">
+            <div class="msg-name" style="text-align:right">Vos</div>
+            <div class="bubble user">${text.replace(/\n/g,'<br>')}</div>
+        </div>
+        <div class="msg-avatar user">👤</div>
+    `;
+    area.appendChild(row);
     area.scrollTop = area.scrollHeight;
 }
 
 function addTyping() {
-    const area = document.getElementById('chatArea');
-    const div = document.createElement('div');
-    div.className = 'msg';
-    div.id = 'typingIndicator';
-
-    const avatar = document.createElement('div');
-    avatar.className = 'avatar ai';
-    avatar.textContent = '🧠';
-
-    const wrap = document.createElement('div');
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble ai';
-    bubble.style.padding = '0';
-    const typing = document.createElement('div');
-    typing.className = 'typing';
-    typing.innerHTML = '<span></span><span></span><span></span>';
-    bubble.appendChild(typing);
-    wrap.appendChild(bubble);
-
-    div.appendChild(avatar);
-    div.appendChild(wrap);
-    area.appendChild(div);
+    const area = document.getElementById('chatMessages');
+    const row = document.createElement('div');
+    row.className = 'typing-row';
+    row.id = 'typingIndicator';
+    row.innerHTML = `
+        <div class="msg-avatar ai" style="width:36px;height:36px;border-radius:50%;background:#2E6EF5;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🧠</div>
+        <div class="typing-bubble"><span></span><span></span><span></span></div>
+    `;
+    area.appendChild(row);
     area.scrollTop = area.scrollHeight;
 }
 
@@ -457,51 +619,28 @@ function removeTyping() {
     if (t) t.remove();
 }
 
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+function addAIMsg(html, extra, ms = 850) {
+    return new Promise(async resolve => {
+        addTyping();
+        await delay(ms);
+        removeTyping();
 
-async function agentSay(text, extra, ms = 900) {
-    addTyping();
-    await delay(ms);
-    removeTyping();
-    addMsg(text, 'ai', extra);
-}
+        const area = document.getElementById('chatMessages');
+        const row = document.createElement('div');
+        row.className = 'msg-row';
 
-// ══════════════════════════════════════════════
-//  FLUJO PRINCIPAL
-// ══════════════════════════════════════════════
-async function startValidation() {
-    addMsg('🚀 Sí, validar mi idea', 'user');
-    await delay(400);
-    await agentSay('Perfecto. Voy a hacerte <strong>8 preguntas clave</strong>. Respondé con honestidad — el análisis es tan bueno como los datos que me des.\n\n<em>Empecemos:</em>');
-    await delay(300);
-    await askQuestion(0);
-}
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'msg-content';
+        contentDiv.innerHTML = `<div class="msg-name">Agente IA</div><div class="bubble ai">${html.replace(/\n/g,'<br>')}</div>`;
 
-async function askQuestion(idx) {
-    if (idx >= questions.length) {
-        await runAnalysis();
-        return;
-    }
-    state.step = idx;
+        if (extra) contentDiv.appendChild(extra);
 
-    // Mostrar progreso
-    const stepsHtml = buildProgressSteps(idx);
-    const stepsEl = document.createElement('div');
-    stepsEl.innerHTML = stepsHtml;
-
-    await agentSay(`<strong>Pregunta ${idx + 1} de ${questions.length}</strong>\n\n${questions[idx].ask}`, stepsEl, 700);
-    enableInput();
-}
-
-function buildProgressSteps(current) {
-    const labels = ['Producto','Precio','Costo','Fijos','Ventas','Competencia','Validación','Inversión'];
-    let html = '<div class="progress-steps">';
-    labels.forEach((l, i) => {
-        let cls = i < current ? 'done' : i === current ? 'active' : '';
-        html += `<span class="step-pill ${cls}">${i < current ? '✓ ' : ''}${l}</span>`;
+        row.innerHTML = `<div class="msg-avatar ai">🧠</div>`;
+        row.appendChild(contentDiv);
+        area.appendChild(row);
+        area.scrollTop = area.scrollHeight;
+        resolve();
     });
-    html += '</div>';
-    return html;
 }
 
 function enableInput() {
@@ -517,15 +656,46 @@ function disableInput() {
     document.getElementById('sendBtn').disabled = true;
 }
 
+// ══════════════════════════════════════════════
+//  FLUJO DE PREGUNTAS
+// ══════════════════════════════════════════════
+async function startValidation() {
+    addUserMsg('🚀 Sí, validar mi idea');
+    await addAIMsg('Perfecto. Voy a hacerte <strong>8 preguntas clave</strong>. Respondé con honestidad — el análisis es tan bueno como los datos que me des.', null, 500);
+    await delay(200);
+    await askQuestion(0);
+}
+
+async function askQuestion(idx) {
+    if (idx >= questions.length) { await runAnalysis(); return; }
+    state.step = idx;
+
+    const stepsEl = buildStepsEl(idx);
+    await addAIMsg(`<strong>Pregunta ${idx+1} de ${questions.length}</strong>\n\n${questions[idx].ask}`, stepsEl, 700);
+    enableInput();
+}
+
+function buildStepsEl(current) {
+    const labels = ['Producto','Precio','Costo','Fijos','Ventas','Competencia','Validación','Inversión'];
+    const wrap = document.createElement('div');
+    wrap.className = 'progress-wrap';
+    wrap.style.marginTop = '10px';
+    labels.forEach((l, i) => {
+        const tag = document.createElement('span');
+        tag.className = 'step-tag' + (i < current ? ' done' : i === current ? ' active' : '');
+        tag.textContent = (i < current ? '✓ ' : '') + l;
+        wrap.appendChild(tag);
+    });
+    return wrap;
+}
+
 async function processAnswer(raw) {
     const q = questions[state.step];
-
     if (!q.validate(raw)) {
-        await agentSay(`⚠️ ${q.errMsg}`, null, 500);
+        await addAIMsg(`⚠️ ${q.errMsg}`, null, 500);
         enableInput();
         return;
     }
-
     state.data[q.key] = q.parse ? q.parse(raw) : raw;
     await askQuestion(state.step + 1);
 }
@@ -535,179 +705,165 @@ async function processAnswer(raw) {
 // ══════════════════════════════════════════════
 async function runAnalysis() {
     disableInput();
-    await agentSay('⚙️ Analizando todos los datos... calculando métricas financieras...', null, 400);
+    await addAIMsg('⚙️ Analizando todos los datos... calculando métricas financieras...', null, 400);
     addTyping();
-    await delay(2200);
+    await delay(2400);
     removeTyping();
 
     const d = state.data;
-    const precio = d.precio;
-    const costo = d.costo;
-    const fijos = d.costosijos;
-    const ventas = d.ventasMes;
-    const inversion = d.inversion;
+    const precio = d.precio, costo = d.costo, fijos = d.costosFijos;
+    const ventas = d.ventasMes, inversion = d.inversion;
 
-    // Métricas
-    const margenUnitario = precio - costo;
-    const margenPct = ((margenUnitario / precio) * 100).toFixed(1);
+    const margenUnit = precio - costo;
+    const margenPct = ((margenUnit / precio) * 100).toFixed(1);
     const ingresosMes = precio * ventas;
-    const costoVariableMes = costo * ventas;
-    const utilidadBruta = ingresosMes - costoVariableMes;
-    const utilidadNeta = utilidadBruta - fijos;
-    const puntoEquilibrio = fijos > 0 ? Math.ceil(fijos / margenUnitario) : 0;
-    const mesesRecupero = inversion > 0 && utilidadNeta > 0 ? (inversion / utilidadNeta).toFixed(1) : null;
-    const roi = inversion > 0 ? (((utilidadNeta * 12 - inversion) / inversion) * 100).toFixed(0) : null;
+    const utilBruta = ingresosMes - (costo * ventas);
+    const utilNeta = utilBruta - fijos;
+    const puntoEq = fijos > 0 ? Math.ceil(fijos / margenUnit) : 0;
+    const mesesRecupero = inversion > 0 && utilNeta > 0 ? (inversion / utilNeta).toFixed(1) : null;
+    const roi = inversion > 0 ? (((utilNeta * 12 - inversion) / inversion) * 100).toFixed(0) : null;
 
-    // Score de viabilidad (0-100)
+    // Score
     let score = 0;
-    // Margen
     if (parseFloat(margenPct) >= 60) score += 25;
     else if (parseFloat(margenPct) >= 40) score += 18;
     else if (parseFloat(margenPct) >= 20) score += 10;
     else score += 3;
-    // Rentabilidad
-    if (utilidadNeta > 0) score += 25;
-    else if (utilidadBruta > 0) score += 10;
-    // Punto de equilibrio alcanzable
-    if (puntoEquilibrio === 0 || ventas >= puntoEquilibrio * 1.5) score += 20;
-    else if (ventas >= puntoEquilibrio) score += 12;
-    else score += 0;
-    // Competencia
+    if (utilNeta > 0) score += 25;
+    else if (utilBruta > 0) score += 10;
+    if (puntoEq === 0 || ventas >= puntoEq * 1.5) score += 20;
+    else if (ventas >= puntoEq) score += 12;
     if (d.competencia === 'ninguna') score += 10;
     else if (d.competencia === 'poca') score += 7;
     else score += 3;
-    // Validación
     if (d.validacion === 'clientes') score += 20;
     else if (d.validacion === 'interes') score += 10;
     else score += 2;
 
-    // Veredicto
-    let veredicto, colorClass, emoji, veredictoTexto;
+    let colorClass, emoji, veredicto, desc;
     if (score >= 70) {
+        colorClass = 'verde'; emoji = '✅';
         veredicto = 'VIABLE — Tu producto tiene potencial real';
-        colorClass = 'verde';
-        emoji = '✅';
-        veredictoTexto = 'Los números muestran que este negocio puede generar dinero. Tenés margen saludable y la estructura de costos es sostenible.';
+        desc = 'Los números muestran que este negocio puede generar dinero. Tenés margen saludable y la estructura de costos es sostenible.';
     } else if (score >= 45) {
+        colorClass = 'amarillo'; emoji = '⚠️';
         veredicto = 'POTENCIAL — Necesita ajustes antes de invertir';
-        colorClass = 'amarillo';
-        emoji = '⚠️';
-        veredictoTexto = 'Hay señales positivas pero también riesgos importantes. Antes de invertir, ajustá los puntos críticos que te detallo abajo.';
+        desc = 'Hay señales positivas pero también riesgos importantes. Antes de invertir, ajustá los puntos críticos que te detallo abajo.';
     } else {
+        colorClass = 'rojo'; emoji = '🚫';
         veredicto = 'RIESGO ALTO — No inviertas todavía';
-        colorClass = 'rojo';
-        emoji = '🚫';
-        veredictoTexto = 'Los números actuales no justifican la inversión. Necesitás replantear el modelo antes de gastar un peso.';
+        desc = 'Los números actuales no justifican la inversión. Necesitás replantear el modelo antes de gastar un peso.';
     }
 
-    // Recomendaciones
     const recs = [];
     if (parseFloat(margenPct) < 30) recs.push({ icon: '💡', text: 'Tu margen es muy bajo. Revisá si podés subir el precio o bajar el costo de producción.' });
-    if (utilidadNeta < 0) recs.push({ icon: '🔴', text: 'Con las ventas estimadas no cubrís los costos fijos. Necesitás vender más o reducir gastos fijos.' });
-    if (puntoEquilibrio > 0 && ventas < puntoEquilibrio) recs.push({ icon: '📊', text: `Necesitás vender ${puntoEquilibrio} unidades para cubrir costos, pero estimás ${ventas}. Revisá tu proyección.` });
+    if (utilNeta < 0) recs.push({ icon: '🔴', text: 'Con las ventas estimadas no cubrís los costos fijos. Necesitás vender más o reducir gastos fijos.' });
+    if (puntoEq > 0 && ventas < puntoEq) recs.push({ icon: '📊', text: `Necesitás vender ${puntoEq} unidades para cubrir costos, pero estimás ${ventas}. Revisá tu proyección.` });
     if (d.validacion === 'idea') recs.push({ icon: '🧪', text: 'Antes de invertir, hacé una pre-venta o encuesta paga. Validá que alguien pague de verdad.' });
     if (d.competencia === 'mucha') recs.push({ icon: '🎯', text: 'Con mucha competencia, necesitás una diferenciación clara. ¿Por qué te van a elegir a vos?' });
     if (mesesRecupero && parseFloat(mesesRecupero) > 12) recs.push({ icon: '⏳', text: `Recuperás la inversión en ${mesesRecupero} meses. Considerá reducir la inversión inicial.` });
     if (recs.length === 0) recs.push({ icon: '🚀', text: 'Los indicadores son sólidos. Arrancá con un MVP pequeño para validar en el mercado real.' });
 
-    // Construir card de resultado
+    // Build result card
     const card = document.createElement('div');
     card.className = `result-card ${colorClass}`;
     card.innerHTML = `
-        <div class="result-title ${colorClass}">${emoji} ${veredicto}</div>
-        <p style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:16px;">${veredictoTexto}</p>
+        <div class="result-verdict ${colorClass}">${emoji} ${veredicto}</div>
+        <div class="result-desc">${desc}</div>
 
-        <div class="score-bar-wrap">
-            <div class="score-bar-label"><span>Puntaje de viabilidad</span><span>${score}/100</span></div>
-            <div class="score-bar-bg"><div class="score-bar-fill ${colorClass}" style="width:${score}%"></div></div>
+        <div class="score-wrap">
+            <div class="score-labels"><span>Puntaje de viabilidad</span><span><strong>${score}</strong> / 100</span></div>
+            <div class="score-track"><div class="score-fill ${colorClass}" style="width:${score}%"></div></div>
         </div>
 
-        <div class="metric-grid">
-            <div class="metric-item">
-                <div class="metric-label">Margen por unidad</div>
-                <div class="metric-value ${margenUnitario > 0 ? 'pos' : 'neg'}">$${margenUnitario.toLocaleString('es-AR')}</div>
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <div class="metric-lbl">Margen por unidad</div>
+                <div class="metric-val ${margenUnit > 0 ? 'pos' : 'neg'}">$${margenUnit.toLocaleString('es-AR')}</div>
             </div>
-            <div class="metric-item">
-                <div class="metric-label">Margen %</div>
-                <div class="metric-value ${parseFloat(margenPct) >= 40 ? 'pos' : parseFloat(margenPct) >= 20 ? 'neu' : 'neg'}">${margenPct}%</div>
+            <div class="metric-box">
+                <div class="metric-lbl">Margen %</div>
+                <div class="metric-val ${parseFloat(margenPct) >= 40 ? 'pos' : parseFloat(margenPct) >= 20 ? 'neu' : 'neg'}">${margenPct}%</div>
             </div>
-            <div class="metric-item">
-                <div class="metric-label">Utilidad neta/mes</div>
-                <div class="metric-value ${utilidadNeta > 0 ? 'pos' : 'neg'}">$${utilidadNeta.toLocaleString('es-AR')}</div>
+            <div class="metric-box">
+                <div class="metric-lbl">Utilidad neta / mes</div>
+                <div class="metric-val ${utilNeta > 0 ? 'pos' : 'neg'}">$${utilNeta.toLocaleString('es-AR')}</div>
             </div>
-            <div class="metric-item">
-                <div class="metric-label">Punto de equilibrio</div>
-                <div class="metric-value neu">${puntoEquilibrio > 0 ? puntoEquilibrio + ' u.' : 'Sin fijos'}</div>
+            <div class="metric-box">
+                <div class="metric-lbl">Punto de equilibrio</div>
+                <div class="metric-val neu">${puntoEq > 0 ? puntoEq + ' unidades' : 'Sin fijos'}</div>
             </div>
             ${mesesRecupero ? `
-            <div class="metric-item">
-                <div class="metric-label">Recupero inversión</div>
-                <div class="metric-value ${parseFloat(mesesRecupero) <= 6 ? 'pos' : parseFloat(mesesRecupero) <= 12 ? 'neu' : 'neg'}">${mesesRecupero} meses</div>
+            <div class="metric-box">
+                <div class="metric-lbl">Recupero de inversión</div>
+                <div class="metric-val ${parseFloat(mesesRecupero) <= 6 ? 'pos' : parseFloat(mesesRecupero) <= 12 ? 'neu' : 'neg'}">${mesesRecupero} meses</div>
             </div>` : ''}
             ${roi ? `
-            <div class="metric-item">
-                <div class="metric-label">ROI anual estimado</div>
-                <div class="metric-value ${parseFloat(roi) > 0 ? 'pos' : 'neg'}">${roi}%</div>
+            <div class="metric-box">
+                <div class="metric-lbl">ROI anual estimado</div>
+                <div class="metric-val ${parseFloat(roi) > 0 ? 'pos' : 'neg'}">${roi}%</div>
             </div>` : ''}
         </div>
 
-        <div class="recomendaciones">
-            <h4>📋 Acciones recomendadas</h4>
-            ${recs.map(r => `<div class="rec-item"><span class="rec-icon">${r.icon}</span><span>${r.text}</span></div>`).join('')}
-        </div>
+        <div class="recs-title">📋 Acciones recomendadas</div>
+        ${recs.map(r => `<div class="rec-row"><span class="rec-icon">${r.icon}</span><span>${r.text}</span></div>`).join('')}
     `;
 
     const wrap = document.createElement('div');
+    wrap.style.marginTop = '8px';
     wrap.appendChild(card);
 
-    // Mostrar resumen del producto analizado
-    const resumen = `📊 <strong>Análisis completado para:</strong> "${d.producto}"\n\nAquí están los resultados de tu validación financiera:`;
-    addMsg(resumen, 'ai', wrap);
+    const area = document.getElementById('chatMessages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'msg-content';
+    contentDiv.innerHTML = `<div class="msg-name">Agente IA</div><div class="bubble ai">📊 <strong>Análisis completado para:</strong> "${d.producto}"<br><br>Aquí están los resultados de tu validación financiera:</div>`;
+    contentDiv.appendChild(wrap);
+    row.innerHTML = `<div class="msg-avatar ai">🧠</div>`;
+    row.appendChild(contentDiv);
+    area.appendChild(row);
+    area.scrollTop = area.scrollHeight;
 
-    // Opciones finales
+    // Final options
     await delay(600);
     const opts = document.createElement('div');
-    opts.className = 'quick-options';
+    opts.className = 'quick-opts';
     opts.innerHTML = `
-        <button class="quick-btn" onclick="reiniciar()">🔄 Validar otra idea</button>
-        <button class="quick-btn" onclick="preguntarMas()">💬 Tengo una pregunta</button>
+        <button class="qbtn" onclick="reiniciar()">🔄 Validar otra idea</button>
+        <button class="qbtn" onclick="preguntarMas()">💬 Tengo una pregunta</button>
     `;
-    await agentSay('¿Querés validar otra idea o tenés alguna pregunta sobre los resultados?', opts, 800);
+    await addAIMsg('¿Querés validar otra idea o tenés alguna pregunta sobre los resultados?', opts, 700);
 }
 
 // ══════════════════════════════════════════════
-//  MODO LIBRE (preguntas adicionales)
+//  MODO LIBRE
 // ══════════════════════════════════════════════
-let modoLibre = false;
-
 function preguntarMas() {
     modoLibre = true;
-    addMsg('💬 Tengo una pregunta', 'user');
-    agentSay('Claro, preguntame lo que quieras sobre los resultados o sobre estrategia de negocio. Estoy aquí para ayudarte.', null, 500);
-    enableInput();
+    addUserMsg('💬 Tengo una pregunta');
+    addAIMsg('Claro, preguntame lo que quieras sobre los resultados o sobre estrategia de negocio.', null, 500).then(() => enableInput());
 }
 
 async function responderLibre(texto) {
     const t = texto.toLowerCase();
-    let respuesta = '';
-
+    let r = '';
     if (t.includes('margen') || t.includes('ganancia')) {
-        respuesta = `El <strong>margen</strong> es la diferencia entre lo que cobrás y lo que te cuesta producir. Un margen saludable para un negocio en Argentina está entre el <strong>40% y 70%</strong>, considerando la inflación y los costos variables. Si tu margen es menor al 30%, es muy difícil sobrevivir a largo plazo.`;
-    } else if (t.includes('punto de equilibrio') || t.includes('equilibrio')) {
-        respuesta = `El <strong>punto de equilibrio</strong> es la cantidad mínima de ventas que necesitás para no perder dinero. Se calcula dividiendo tus costos fijos por el margen unitario. Si no llegás a ese número, cada mes perdés plata.`;
+        r = `El <strong>margen</strong> es la diferencia entre lo que cobrás y lo que te cuesta producir. Un margen saludable en Argentina está entre el <strong>40% y 70%</strong>. Si tu margen es menor al 30%, es muy difícil sobrevivir a largo plazo con la inflación.`;
+    } else if (t.includes('equilibrio')) {
+        r = `El <strong>punto de equilibrio</strong> es la cantidad mínima de ventas para no perder dinero. Se calcula dividiendo tus costos fijos por el margen unitario. Si no llegás a ese número, cada mes perdés plata.`;
     } else if (t.includes('roi') || t.includes('retorno')) {
-        respuesta = `El <strong>ROI (Retorno sobre la Inversión)</strong> te dice cuánto ganás por cada peso que invertís en un año. Un ROI positivo significa que el negocio genera más de lo que costó arrancar. En Argentina, con la inflación, un ROI menor al 100% anual puede significar pérdida real de poder adquisitivo.`;
+        r = `El <strong>ROI</strong> te dice cuánto ganás por cada peso invertido en un año. En Argentina, con la inflación, un ROI menor al 100% anual puede significar pérdida real de poder adquisitivo.`;
     } else if (t.includes('validar') || t.includes('validación')) {
-        respuesta = `La mejor forma de validar sin gastar es:\n\n1. <strong>Pre-venta:</strong> Ofrecé el producto antes de producirlo\n2. <strong>Landing page:</strong> Medí cuántos se registran\n3. <strong>Encuesta paga:</strong> Preguntá si pagarían el precio real\n4. <strong>MVP mínimo:</strong> Hacé la versión más simple posible\n\nSi nadie paga en la validación, nadie pagará después.`;
+        r = `La mejor forma de validar sin gastar:\n\n1. <strong>Pre-venta:</strong> Ofrecé el producto antes de producirlo\n2. <strong>Landing page:</strong> Medí cuántos se registran\n3. <strong>Encuesta paga:</strong> Preguntá si pagarían el precio real\n4. <strong>MVP mínimo:</strong> Hacé la versión más simple posible\n\nSi nadie paga en la validación, nadie pagará después.`;
     } else if (t.includes('competencia')) {
-        respuesta = `Tener competencia no es malo — significa que hay mercado. Lo importante es tu <strong>diferenciación</strong>: ¿por qué te van a elegir a vos? Puede ser precio, calidad, velocidad, atención, o un nicho específico que los demás ignoran.`;
+        r = `Tener competencia no es malo — significa que hay mercado. Lo importante es tu <strong>diferenciación</strong>: ¿por qué te van a elegir a vos? Puede ser precio, calidad, velocidad, atención o un nicho específico.`;
     } else if (t.includes('precio') || t.includes('cobrar')) {
-        respuesta = `Para fijar el precio correcto en Argentina:\n\n• <strong>Costo + margen:</strong> Calculá tu costo real y sumá el margen deseado\n• <strong>Precio de mercado:</strong> ¿Cuánto cobra la competencia?\n• <strong>Valor percibido:</strong> ¿Cuánto vale para el cliente?\n\nEl precio más bajo no siempre gana. A veces un precio más alto genera más confianza.`;
+        r = `Para fijar el precio correcto:\n\n• <strong>Costo + margen:</strong> Calculá tu costo real y sumá el margen deseado\n• <strong>Precio de mercado:</strong> ¿Cuánto cobra la competencia?\n• <strong>Valor percibido:</strong> ¿Cuánto vale para el cliente?\n\nEl precio más bajo no siempre gana.`;
     } else {
-        respuesta = `Esa es una buena pregunta. En términos de viabilidad de negocio, lo más importante es siempre volver a los números: ¿el precio cubre los costos? ¿hay suficiente demanda? ¿el margen aguanta la inflación?\n\nSi querés, podemos validar otra idea con el agente o profundizar en algún aspecto específico de tu negocio.`;
+        r = `Buena pregunta. En viabilidad de negocio, siempre volvé a los números: ¿el precio cubre los costos? ¿hay suficiente demanda? ¿el margen aguanta la inflación?\n\nSi querés, podemos validar otra idea o profundizar en algún aspecto específico.`;
     }
-
-    await agentSay(respuesta, null, 1000);
+    await addAIMsg(r, null, 1000);
     enableInput();
 }
 
@@ -715,63 +871,43 @@ async function responderLibre(texto) {
 //  MODO EXPLICACIÓN
 // ══════════════════════════════════════════════
 async function explainMode() {
-    addMsg('❓ ¿Cómo funciona?', 'user');
-    await agentSay(`El agente funciona en <strong>3 etapas</strong>:\n\n<strong>1. Recolección de datos</strong> — Te hago 8 preguntas sobre tu producto, precios, costos y mercado.\n\n<strong>2. Análisis financiero</strong> — Calculo automáticamente:\n• Margen unitario y porcentual\n• Utilidad neta mensual\n• Punto de equilibrio\n• ROI y tiempo de recupero\n• Score de viabilidad (0-100)\n\n<strong>3. Veredicto + Recomendaciones</strong> — Te digo si el negocio es viable, con riesgo o no recomendable, y qué hacer en cada caso.\n\nTodo esto <em>antes de gastar un peso</em>.`, null, 1200);
-    await delay(400);
+    addUserMsg('❓ ¿Cómo funciona?');
+    await addAIMsg(`El agente funciona en <strong>3 etapas</strong>:\n\n<strong>1. Recolección de datos</strong> — Te hago 8 preguntas sobre tu producto, precios, costos y mercado.\n\n<strong>2. Análisis financiero</strong> — Calculo automáticamente margen, utilidad neta, punto de equilibrio, ROI y tiempo de recupero.\n\n<strong>3. Veredicto + Recomendaciones</strong> — Te digo si el negocio es viable, con riesgo o no recomendable, y qué hacer en cada caso.\n\nTodo esto <em>antes de gastar un peso</em>.`, null, 1200);
+    await delay(300);
     const opts = document.createElement('div');
-    opts.className = 'quick-options';
-    opts.innerHTML = `<button class="quick-btn" onclick="startValidation()">🚀 Empezar validación</button>`;
-    await agentSay('¿Empezamos con tu idea?', opts, 600);
+    opts.className = 'quick-opts';
+    opts.innerHTML = `<button class="qbtn" onclick="startValidation()">🚀 Empezar validación</button>`;
+    await addAIMsg('¿Empezamos con tu idea?', opts, 600);
 }
 
 // ══════════════════════════════════════════════
 //  REINICIAR
 // ══════════════════════════════════════════════
 function reiniciar() {
-    state.step = 0;
-    state.data = {};
-    state.waiting = false;
-    modoLibre = false;
-    addMsg('🔄 Validar otra idea', 'user');
-    agentSay('¡Perfecto! Empecemos de nuevo con tu nueva idea.', null, 500).then(() => askQuestion(0));
+    state.step = 0; state.data = {}; state.waiting = false; modoLibre = false;
+    addUserMsg('🔄 Validar otra idea');
+    addAIMsg('¡Perfecto! Empecemos de nuevo con tu nueva idea.', null, 500).then(() => askQuestion(0));
 }
 
 // ══════════════════════════════════════════════
-//  ENVÍO DE MENSAJES
+//  ENVÍO
 // ══════════════════════════════════════════════
-function sendQuick(text) {
-    if (text === '❓ ¿Cómo funciona?') { explainMode(); return; }
-    addMsg(text, 'user');
-}
-
 async function sendMessage() {
     const input = document.getElementById('userInput');
     const text = input.value.trim();
     if (!text) return;
-
     input.value = '';
     autoResize(input);
     disableInput();
-    addMsg(text, 'user');
+    addUserMsg(text);
 
-    if (modoLibre) {
-        await responderLibre(text);
-        return;
-    }
-
-    if (!state.waiting && state.step === 0) {
-        await startValidation();
-        return;
-    }
-
+    if (modoLibre) { await responderLibre(text); return; }
+    if (!state.waiting && state.step === 0) { await startValidation(); return; }
     await processAnswer(text);
 }
 
 function handleKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
 function autoResize(el) {
