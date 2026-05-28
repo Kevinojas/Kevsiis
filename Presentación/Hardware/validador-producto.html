@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Validadora de Producto - ¿Tu idea genera dinero?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* ── Colores base ── */
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .blue-accent { background-color: #3b82f6; }
+        .light-blue-bg { background-color: #eff6ff; }
+
+        /* ── Layout principal ── */
+        .app-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            overflow: hidden;
+        }
+
+        /* ── Header ── */
+        .app-header {
+            padding: 36px 48px 24px;
+            border-bottom: 1px solid #e0e7ff;
+            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+        }
+
+        /* ── Secciones de pasos ── */
+        .step-section {
+            display: none;
+            padding: 32px 48px;
+            animation: fadeIn 0.4s ease;
+        }
+        .step-section.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Barra de progreso ── */
+        .progress-bar-track {
+            background: #e0e7ff;
+            border-radius: 99px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            transition: width 0.5s ease;
+        }
+
+        /* ── Tarjetas de pregunta ── */
+        .question-card {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+        .question-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3b82f6;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+        .question-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        .question-hint {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+
+        /* ── Inputs ── */
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #bfdbfe;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            color: #1e293b;
+            background: #ffffff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+        textarea { resize: vertical; min-height: 80px; }
+
+        /* ── Opciones de selección ── */
+        .option-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .option-btn {
+            padding: 12px 16px;
+            border: 2px solid #bfdbfe;
+            border-radius: 12px;
+            background: #ffffff;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: #475569;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .option-btn:hover { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
+        .option-btn.selected {
+            border-color: #3b82f6;
+            background: #3b82f6;
+            color: #ffffff;
+        }
+
+        /* ── Botones de navegación ── */
+        .btn-primary {
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 32px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(59,130,246,0.35);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.45); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 24px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover { background: #e2e8f0; }
+
+        /* ── Pantalla de análisis ── */
+        .analyzing-screen {
+            text-align: center;
+            padding: 60px 48px;
+        }
+        .ai-brain {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: pulse-brain 1.5s ease-in-out infinite;
+            box-shadow: 0 0 0 0 rgba(59,130,246,0.4);
+        }
+        @keyframes pulse-brain {
+            0%   { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+            70%  { box-shadow: 0 0 0 20px rgba(59,130,246,0); }
+            100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+        }
+        .analysis-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            background: #f8fafc;
+            transition: all 0.3s;
+        }
+        .analysis-step.done { background: #eff6ff; color: #2563eb; }
+        .analysis-step.active { background: #dbeafe; color: #1d4ed8; font-weight: 600; }
+        .step-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            flex-shrink: 0;
+            transition: background 0.3s;
+        }
+        .analysis-step.done .step-dot { background: #22c55e; }
+        .analysis-step.active .step-dot {
+            background: #3b82f6;
+            animation: blink 0.8s ease-in-out infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        /* ── Resultado ── */
+        .result-header {
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .result-header.verde  { background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 2px solid #86efac; }
+        .result-header.amarillo { background: linear-gradient(135deg, #fef9c3, #fde68a); border: 2px solid #fcd34d; }
+        .result-header.rojo   { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 2px solid #fca5a5; }
+
+        .score-circle {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-weight: 800;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .score-circle.verde   { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+        .score-circle.amarillo { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .score-circle.rojo    { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+
+        .metric-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .metric-card.positivo { border-left-color: #22c55e; }
+        .metric-card.negativo { border-left-color: #ef4444; }
+        .metric-card.neutro   { border-left-color: #f59e0b; }
+
+        .metric-bar-track {
+            background: #e2e8f0;
+            border-radius: 99px;
+            height: 6px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .metric-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 1s ease 0.3s;
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .recommendation-item.accion { background: #eff6ff; color: #1e40af; }
+        .recommendation-item.alerta { background: #fff7ed; color: #9a3412; }
+        .recommendation-item.ok     { background: #f0fdf4; color: #166534; }
+
+        .verdict-badge {
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .verdict-badge.verde   { background: #22c55e; color: white; }
+        .verdict-badge.amarillo { background: #f59e0b; color: white; }
+        .verdict-badge.rojo    { background: #ef4444; color: white; }
+
+        /* ── Indicadores de paso ── */
+        .step-indicators {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .step-indicator {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            border: 2px solid #bfdbfe;
+            color: #94a3b8;
+            background: white;
+            transition: all 0.3s;
+        }
+        .step-indicator.active { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
+        .step-indicator.done   { border-color: #22c55e; background: #22c55e; color: white; }
+
+        /* ── Tooltip de ayuda ── */
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: #bfdbfe;
+            color: #2563eb;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: help;
+            margin-left: 6px;
+            position: relative;
+        }
+        .tooltip-icon:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .app-header, .step-section { padding: 24px 20px; }
+            .option-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- ══════════════════════════════════════════
+         HEADER
+    ══════════════════════════════════════════ -->
+    <div class="app-header">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-full blue-accent flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold gradient-text leading-tight">IA Validadora de Producto</h1>
+                    <p class="text-sm text-gray-500 mt-0.5">¿Tu idea genera dinero antes de gastar un peso?</p>
+                </div>
+            </div>
+            <div class="step-indicators" id="stepIndicators">
+                <div class="step-indicator active" id="ind-1">1</div>
+                <div style="width:20px;height:2px;background:#e0e7ff;border-radius:99px;"></div>
+                <div class="step-indicator" id="ind-2">2</div>
+                <div style="width:20px;height:2px;background:#e0e7ff;border-radius:99px;"></div>
+                <div class="step-indicator" id="ind-3">3</div>
+                <div style="width:20px;height:2px;background:#e0e7ff;border-radius:99px;"></div>
+                <div class="step-indicator" id="ind-4">4</div>
+            </div>
+        </div>
+
+        <!-- Barra de progreso -->
+        <div class="mt-5">
+            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                <span id="progressLabel">Paso 1 de 4 — Tu producto</span>
+                <span id="progressPct">0%</span>
+            </div>
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PASO 1 — PRODUCTO
+    ══════════════════════════════════════════ -->
+    <div class="step-section active" id="step-1">
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Contame sobre tu producto o idea</h2>
+        <p class="text-sm text-gray-500 mb-6">Cuanto más detallado seas, más preciso será el análisis de la IA.</p>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 1</div>
+            <div class="question-text">¿Cómo se llama tu producto o idea?</div>
+            <input type="text" id="q-nombre" placeholder="Ej: App de delivery de comida saludable, Curso online de Excel..." maxlength="120">
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 2</div>
+            <div class="question-text">Describí qué hace tu producto en 2-3 oraciones</div>
+            <div class="question-hint">Explicalo como si se lo contaras a alguien que no sabe nada del tema.</div>
+            <textarea id="q-descripcion" placeholder="Ej: Es una plataforma web que conecta a personas que quieren comer sano con cocineros caseros de su barrio. El usuario elige el menú, paga online y recibe la comida en 30 minutos..."></textarea>
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 3</div>
+            <div class="question-text">¿En qué categoría entra tu producto?</div>
+            <div class="option-grid" id="q-categoria">
+                <button class="option-btn" onclick="selectOption('q-categoria', this, 'App / Software')">📱 App / Software</button>
+                <button class="option-btn" onclick="selectOption('q-categoria', this, 'Producto físico')">📦 Producto físico</button>
+                <button class="option-btn" onclick="selectOption('q-categoria', this, 'Servicio / Consultoría')">🤝 Servicio / Consultoría</button>
+                <button class="option-btn" onclick="selectOption('q-categoria', this, 'Contenido / Curso')">🎓 Contenido / Curso</button>
+                <button class="option-btn" onclick="selectOption('q-categoria', this, 'E-commerce / Tienda')">🛒 E-commerce / Tienda</button>
+                <button class="option-btn" onclick="selectOption('q-categoria', this, 'Otro')">💡 Otro</button>
+            </div>
+        </div>
+
+        <div class="flex justify-end mt-6">
+            <button class="btn-primary" onclick="goToStep(2)">Continuar →</button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PASO 2 — MERCADO Y CLIENTE
+    ══════════════════════════════════════════ -->
+    <div class="step-section" id="step-2">
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Tu mercado y cliente ideal</h2>
+        <p class="text-sm text-gray-500 mb-6">El 90% de los negocios fracasan por no conocer bien a su cliente. Seamos honestos.</p>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 4</div>
+            <div class="question-text">¿Quién es tu cliente ideal?
+                <span class="tooltip-icon" data-tip="Edad, género, ocupación, dónde vive, qué le duele">?</span>
+            </div>
+            <textarea id="q-cliente" placeholder="Ej: Mujeres de 25-40 años, profesionales con poco tiempo, que viven en CABA, que quieren comer sano pero no saben cocinar y tienen poder adquisitivo medio-alto..."></textarea>
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 5</div>
+            <div class="question-text">¿Qué problema concreto resuelve tu producto?</div>
+            <div class="question-hint">Sé específico. "Ahorra tiempo" no es suficiente. ¿Cuánto tiempo? ¿En qué situación?</div>
+            <textarea id="q-problema" placeholder="Ej: Las personas que trabajan 8+ horas no tienen tiempo de cocinar comida saludable y terminan pidiendo delivery de comida chatarra gastando $15.000 por semana..."></textarea>
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 6</div>
+            <div class="question-text">¿Ya hablaste con potenciales clientes sobre esta idea?</div>
+            <div class="option-grid" id="q-validacion">
+                <button class="option-btn" onclick="selectOption('q-validacion', this, 'Sí, más de 10 personas')">✅ Sí, más de 10 personas</button>
+                <button class="option-btn" onclick="selectOption('q-validacion', this, 'Sí, 1-5 personas')">🗣️ Sí, 1-5 personas</button>
+                <button class="option-btn" onclick="selectOption('q-validacion', this, 'No, pero tengo intención')">📋 No, pero tengo intención</button>
+                <button class="option-btn" onclick="selectOption('q-validacion', this, 'No, es solo una idea')">💭 No, es solo una idea</button>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 7</div>
+            <div class="question-text">¿Cuántas personas podrían necesitar esto en Argentina?</div>
+            <div class="option-grid" id="q-mercado">
+                <button class="option-btn" onclick="selectOption('q-mercado', this, 'Nicho pequeño (menos de 10.000)')">🎯 Nicho pequeño (&lt;10k)</button>
+                <button class="option-btn" onclick="selectOption('q-mercado', this, 'Mercado mediano (10k-100k)')">📊 Mediano (10k-100k)</button>
+                <button class="option-btn" onclick="selectOption('q-mercado', this, 'Mercado grande (100k-1M)')">🚀 Grande (100k-1M)</button>
+                <button class="option-btn" onclick="selectOption('q-mercado', this, 'Mercado masivo (más de 1M)')">🌎 Masivo (+1M)</button>
+            </div>
+        </div>
+
+        <div class="flex justify-between mt-6">
+            <button class="btn-secondary" onclick="goToStep(1)">← Atrás</button>
+            <button class="btn-primary" onclick="goToStep(3)">Continuar →</button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PASO 3 — NÚMEROS Y COMPETENCIA
+    ══════════════════════════════════════════ -->
+    <div class="step-section" id="step-3">
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Los números que importan</h2>
+        <p class="text-sm text-gray-500 mb-6">Sin números no hay negocio. Estimá lo mejor que puedas.</p>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 8</div>
+            <div class="question-text">¿Cuánto cobrarías por tu producto o servicio?
+                <span class="tooltip-icon" data-tip="En pesos argentinos. Si es suscripción, el precio mensual.">?</span>
+            </div>
+            <div style="position:relative;">
+                <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#64748b;font-weight:600;">$</span>
+                <input type="number" id="q-precio" placeholder="0" style="padding-left:28px;" min="0">
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 9</div>
+            <div class="question-text">¿Cuánto te costaría producir / entregar cada unidad?
+                <span class="tooltip-icon" data-tip="Costo de materiales, tiempo, hosting, etc. por unidad vendida.">?</span>
+            </div>
+            <div style="position:relative;">
+                <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#64748b;font-weight:600;">$</span>
+                <input type="number" id="q-costo" placeholder="0" style="padding-left:28px;" min="0">
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 10</div>
+            <div class="question-text">¿Cuántos clientes esperás conseguir en el primer mes?</div>
+            <input type="number" id="q-clientes" placeholder="Ej: 10" min="0">
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 11</div>
+            <div class="question-text">¿Existe competencia directa en Argentina?</div>
+            <div class="option-grid" id="q-competencia">
+                <button class="option-btn" onclick="selectOption('q-competencia', this, 'Sí, varios competidores fuertes')">⚔️ Sí, varios fuertes</button>
+                <button class="option-btn" onclick="selectOption('q-competencia', this, 'Sí, pero son débiles o caros')">🥊 Sí, pero son débiles</button>
+                <button class="option-btn" onclick="selectOption('q-competencia', this, 'Poca o ninguna competencia')">🌟 Poca o ninguna</button>
+                <button class="option-btn" onclick="selectOption('q-competencia', this, 'No sé')">🤷 No sé</button>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 12</div>
+            <div class="question-text">¿Cuánto dinero tenés para invertir inicialmente?</div>
+            <div class="option-grid" id="q-inversion">
+                <button class="option-btn" onclick="selectOption('q-inversion', this, 'Cero (bootstrapping total)')">$0 Sin inversión</button>
+                <button class="option-btn" onclick="selectOption('q-inversion', this, 'Menos de $100.000')">Menos de $100k</button>
+                <button class="option-btn" onclick="selectOption('q-inversion', this, '$100.000 - $500.000')">$100k - $500k</button>
+                <button class="option-btn" onclick="selectOption('q-inversion', this, 'Más de $500.000')">Más de $500k</button>
+            </div>
+        </div>
+
+        <div class="flex justify-between mt-6">
+            <button class="btn-secondary" onclick="goToStep(2)">← Atrás</button>
+            <button class="btn-primary" onclick="goToStep(4)">Continuar →</button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PASO 4 — CONTEXTO FINAL
+    ══════════════════════════════════════════ -->
+    <div class="step-section" id="step-4">
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Últimas preguntas clave</h2>
+        <p class="text-sm text-gray-500 mb-6">Estas respuestas determinan el riesgo real de tu emprendimiento.</p>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 13</div>
+            <div class="question-text">¿Cuánto tiempo podés dedicarle por semana?</div>
+            <div class="option-grid" id="q-tiempo">
+                <button class="option-btn" onclick="selectOption('q-tiempo', this, 'Menos de 5 horas')">⏱️ Menos de 5 hs</button>
+                <button class="option-btn" onclick="selectOption('q-tiempo', this, '5-15 horas')">🕐 5-15 hs</button>
+                <button class="option-btn" onclick="selectOption('q-tiempo', this, '15-40 horas')">💪 15-40 hs</button>
+                <button class="option-btn" onclick="selectOption('q-tiempo', this, 'Full time (40+ horas)')">🔥 Full time</button>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 14</div>
+            <div class="question-text">¿Tenés experiencia en este rubro o industria?</div>
+            <div class="option-grid" id="q-experiencia">
+                <button class="option-btn" onclick="selectOption('q-experiencia', this, 'Sí, mucha experiencia')">🏆 Sí, mucha</button>
+                <button class="option-btn" onclick="selectOption('q-experiencia', this, 'Algo de experiencia')">📚 Algo</button>
+                <button class="option-btn" onclick="selectOption('q-experiencia', this, 'Poca experiencia')">🌱 Poca</button>
+                <button class="option-btn" onclick="selectOption('q-experiencia', this, 'Ninguna experiencia')">❓ Ninguna</button>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 15</div>
+            <div class="question-text">¿Cómo pensás conseguir tus primeros clientes?</div>
+            <div class="option-grid" id="q-adquisicion">
+                <button class="option-btn" onclick="selectOption('q-adquisicion', this, 'Redes sociales orgánico')">📲 Redes orgánico</button>
+                <button class="option-btn" onclick="selectOption('q-adquisicion', this, 'Publicidad paga (Meta/Google)')">💰 Publicidad paga</button>
+                <button class="option-btn" onclick="selectOption('q-adquisicion', this, 'Boca a boca / referidos')">🗣️ Boca a boca</button>
+                <button class="option-btn" onclick="selectOption('q-adquisicion', this, 'Ventas directas / puerta a puerta')">🚪 Ventas directas</button>
+                <button class="option-btn" onclick="selectOption('q-adquisicion', this, 'Alianzas / partnerships')">🤝 Alianzas</button>
+                <button class="option-btn" onclick="selectOption('q-adquisicion', this, 'No lo tengo claro')">🤷 No lo sé aún</button>
+            </div>
+        </div>
+
+        <div class="question-card">
+            <div class="question-label">Pregunta 16 — Opcional</div>
+            <div class="question-text">¿Hay algo más que quieras que la IA considere?</div>
+            <textarea id="q-extra" placeholder="Ej: Ya tengo un prototipo funcionando, tengo un socio técnico, el contexto de inflación me afecta porque importo insumos..."></textarea>
+        </div>
+
+        <div class="flex justify-between mt-6">
+            <button class="btn-secondary" onclick="goToStep(3)">← Atrás</button>
+            <button class="btn-primary" id="btnAnalizar" onclick="startAnalysis()">
+                🧠 Analizar con IA →
+            </button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PANTALLA DE ANÁLISIS
+    ══════════════════════════════════════════ -->
+    <div class="step-section" id="step-analyzing">
+        <div class="analyzing-screen">
+            <div class="ai-brain">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">La IA está analizando tu producto</h2>
+            <p class="text-gray-500 mb-8">Procesando 16 variables de negocio en tiempo real...</p>
+
+            <div style="max-width:420px;margin:0 auto;text-align:left;">
+                <div class="analysis-step" id="as-1">
+                    <div class="step-dot"></div>
+                    Evaluando propuesta de valor y diferenciación
+                </div>
+                <div class="analysis-step" id="as-2">
+                    <div class="step-dot"></div>
+                    Calculando margen bruto y punto de equilibrio
+                </div>
+                <div class="analysis-step" id="as-3">
+                    <div class="step-dot"></div>
+                    Analizando tamaño de mercado y demanda
+                </div>
+                <div class="analysis-step" id="as-4">
+                    <div class="step-dot"></div>
+                    Evaluando competencia y barreras de entrada
+                </div>
+                <div class="analysis-step" id="as-5">
+                    <div class="step-dot"></div>
+                    Calculando riesgo financiero y runway
+                </div>
+                <div class="analysis-step" id="as-6">
+                    <div class="step-dot"></div>
+                    Generando recomendaciones personalizadas
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         RESULTADO
+    ══════════════════════════════════════════ -->
+    <div class="step-section" id="step-result">
+        <div id="resultContent"></div>
+        <div class="flex justify-center mt-8 gap-4 flex-wrap">
+            <button class="btn-secondary" onclick="resetApp()">🔄 Analizar otro producto</button>
+            <button class="btn-primary" onclick="window.print()">🖨️ Imprimir resultado</button>
+        </div>
+    </div>
+
+</div><!-- /app-container -->
+
+<script>
+// ══════════════════════════════════════════
+// ESTADO GLOBAL
+// ══════════════════════════════════════════
+const state = {
+    currentStep: 1,
+    totalSteps: 4,
+    answers: {}
+};
+
+// ══════════════════════════════════════════
+// NAVEGACIÓN
+// ══════════════════════════════════════════
+function goToStep(step) {
+    // Validar paso actual antes de avanzar
+    if (step > state.currentStep) {
+        const errors = validateStep(state.currentStep);
+        if (errors.length > 0) {
+            showValidationError(errors[0]);
+            return;
+        }
+        collectAnswers(state.currentStep);
+    }
+
+    // Ocultar paso actual
+    document.getElementById('step-' + state.currentStep).classList.remove('active');
+
+    // Actualizar indicadores
+    const prevInd = document.getElementById('ind-' + state.currentStep);
+    if (prevInd) {
+        if (step > state.currentStep) {
+            prevInd.classList.remove('active');
+            prevInd.classList.add('done');
+            prevInd.innerHTML = '✓';
+        } else {
+            prevInd.classList.remove('done');
+            prevInd.classList.add('active');
+            prevInd.innerHTML = state.currentStep;
+        }
+    }
+
+    state.currentStep = step;
+
+    // Mostrar nuevo paso
+    document.getElementById('step-' + step).classList.add('active');
+
+    // Actualizar indicador activo
+    const newInd = document.getElementById('ind-' + step);
+    if (newInd) {
+        newInd.classList.add('active');
+        newInd.classList.remove('done');
+    }
+
+    // Actualizar barra de progreso
+    const pct = Math.round(((step - 1) / state.totalSteps) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+    const labels = ['', 'Tu producto', 'Mercado y cliente', 'Los números', 'Contexto final'];
+    document.getElementById('progressLabel').textContent = 'Paso ' + step + ' de ' + state.totalSteps + ' — ' + labels[step];
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════
+// SELECCIÓN DE OPCIONES
+// ══════════════════════════════════════════
+function selectOption(groupId, btn, value) {
+    const group = document.getElementById(groupId);
+    group.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.answers[groupId] = value;
+}
+
+// ══════════════════════════════════════════
+// VALIDACIÓN
+// ══════════════════════════════════════════
+function validateStep(step) {
+    const errors = [];
+    if (step === 1) {
+        if (!document.getElementById('q-nombre').value.trim()) errors.push('Por favor ingresá el nombre de tu producto.');
+        if (!document.getElementById('q-descripcion').value.trim()) errors.push('Por favor describí tu producto.');
+        if (!state.answers['q-categoria']) errors.push('Seleccioná la categoría de tu producto.');
+    }
+    if (step === 2) {
+        if (!document.getElementById('q-cliente').value.trim()) errors.push('Describí a tu cliente ideal.');
+        if (!document.getElementById('q-problema').value.trim()) errors.push('Describí el problema que resolvés.');
+        if (!state.answers['q-validacion']) errors.push('Indicá si ya hablaste con potenciales clientes.');
+        if (!state.answers['q-mercado']) errors.push('Estimá el tamaño de tu mercado.');
+    }
+    if (step === 3) {
+        const precio = parseFloat(document.getElementById('q-precio').value);
+        const costo  = parseFloat(document.getElementById('q-costo').value);
+        if (!precio || precio <= 0) errors.push('Ingresá el precio de tu producto.');
+        if (isNaN(costo) || costo < 0) errors.push('Ingresá el costo de producción (puede ser 0).');
+        if (!document.getElementById('q-clientes').value) errors.push('Estimá cuántos clientes esperás el primer mes.');
+        if (!state.answers['q-competencia']) errors.push('Indicá si existe competencia.');
+        if (!state.answers['q-inversion']) errors.push('Indicá cuánto podés invertir.');
+    }
+    if (step === 4) {
+        if (!state.answers['q-tiempo']) errors.push('Indicá cuánto tiempo podés dedicarle.');
+        if (!state.answers['q-experiencia']) errors.push('Indicá tu nivel de experiencia en el rubro.');
+        if (!state.answers['q-adquisicion']) errors.push('Indicá cómo pensás conseguir clientes.');
+    }
+    return errors;
+}
+
+function showValidationError(msg) {
+    const existing = document.getElementById('validationMsg');
+    if (existing) existing.remove();
+    const div = document.createElement('div');
+    div.id = 'validationMsg';
+    div.style.cssText = 'background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:500;margin-top:12px;animation:fadeIn 0.3s ease;';
+    div.textContent = '⚠️ ' + msg;
+    const activeStep = document.querySelector('.step-section.active');
+    activeStep.appendChild(div);
+    setTimeout(() => { if (div.parentNode) div.remove(); }, 4000);
+}
+
+// ══════════════════════════════════════════
+// RECOLECTAR RESPUESTAS
+// ══════════════════════════════════════════
+function collectAnswers(step) {
+    if (step === 1) {
+        state.answers['q-nombre']      = document.getElementById('q-nombre').value.trim();
+        state.answers['q-descripcion'] = document.getElementById('q-descripcion').value.trim();
+    }
+    if (step === 2) {
+        state.answers['q-cliente']  = document.getElementById('q-cliente').value.trim();
+        state.answers['q-problema'] = document.getElementById('q-problema').value.trim();
+    }
+    if (step === 3) {
+        state.answers['q-precio']   = parseFloat(document.getElementById('q-precio').value) || 0;
+        state.answers['q-costo']    = parseFloat(document.getElementById('q-costo').value) || 0;
+        state.answers['q-clientes'] = parseInt(document.getElementById('q-clientes').value) || 0;
+    }
+    if (step === 4) {
+        state.answers['q-extra'] = document.getElementById('q-extra').value.trim();
+    }
+}
+
+// ══════════════════════════════════════════
+// INICIAR ANÁLISIS
+// ══════════════════════════════════════════
+function startAnalysis() {
+    const errors = validateStep(4);
+    if (errors.length > 0) { showValidationError(errors[0]); return; }
+    collectAnswers(4);
+
+    // Ir a pantalla de análisis
+    document.getElementById('step-4').classList.remove('active');
+    document.getElementById('step-analyzing').classList.add('active');
+    document.getElementById('progressFill').style.width = '90%';
+    document.getElementById('progressPct').textContent = '90%';
+    document.getElementById('progressLabel').textContent = 'Analizando con IA...';
+
+    // Actualizar indicador 4
+    const ind4 = document.getElementById('ind-4');
+    ind4.classList.add('done');
+    ind4.innerHTML = '✓';
+
+    runAnalysisAnimation();
+}
+
+function runAnalysisAnimation() {
+    const steps = ['as-1','as-2','as-3','as-4','as-5','as-6'];
+    let i = 0;
+
+    function activateNext() {
+        if (i > 0) {
+            document.getElementById(steps[i-1]).classList.remove('active');
+            document.getElementById(steps[i-1]).classList.add('done');
+        }
+        if (i < steps.length) {
+            document.getElementById(steps[i]).classList.add('active');
+            i++;
+            setTimeout(activateNext, 700 + Math.random() * 400);
+        } else {
+            // Último paso completado
+            setTimeout(showResult, 600);
+        }
+    }
+    activateNext();
+}
+
+// ══════════════════════════════════════════
+// MOTOR DE ANÁLISIS IA
+// ══════════════════════════════════════════
+function analyzeProduct() {
+    const a = state.answers;
+    const precio   = a['q-precio']   || 0;
+    const costo    = a['q-costo']    || 0;
+    const clientes = a['q-clientes'] || 0;
+    const margen   = precio > 0 ? ((precio - costo) / precio) * 100 : 0;
+    const ingresoMes = precio * clientes;
+    const costoMes   = costo * clientes;
+    const gananciaM  = ingresoMes - costoMes;
+
+    // ── Puntuación por dimensiones (0-100) ──
+    let scores = {};
+
+    // 1. MARGEN BRUTO
+    if (margen >= 70)      scores.margen = 95;
+    else if (margen >= 50) scores.margen = 80;
+    else if (margen >= 30) scores.margen = 60;
+    else if (margen >= 10) scores.margen = 35;
+    else                   scores.margen = 10;
+
+    // 2. VALIDACIÓN DE MERCADO
+    const valMap = {
+        'Sí, más de 10 personas': 95,
+        'Sí, 1-5 personas': 70,
+        'No, pero tengo intención': 40,
+        'No, es solo una idea': 15
+    };
+    scores.validacion = valMap[a['q-validacion']] || 30;
+
+    // 3. TAMAÑO DE MERCADO
+    const mercMap = {
+        'Nicho pequeño (menos de 10.000)': 40,
+        'Mercado mediano (10k-100k)': 65,
+        'Mercado grande (100k-1M)': 85,
+        'Mercado masivo (más de 1M)': 95
+    };
+    scores.mercado = mercMap[a['q-mercado']] || 50;
+
+    // 4. COMPETENCIA
+    const compMap = {
+        'Sí, varios competidores fuertes': 40,
+        'Sí, pero son débiles o caros': 75,
+        'Poca o ninguna competencia': 85,
+        'No sé': 45
+    };
+    scores.competencia = compMap[a['q-competencia']] || 50;
+
+    // 5. CAPACIDAD DE EJECUCIÓN (tiempo + experiencia)
+    const tiempoMap = {
+        'Menos de 5 horas': 20,
+        '5-15 horas': 50,
+        '15-40 horas': 80,
+        'Full time (40+ horas)': 95
+    };
+    const expMap = {
+        'Sí, mucha experiencia': 95,
+        'Algo de experiencia': 70,
+        'Poca experiencia': 45,
+        'Ninguna experiencia': 20
+    };
+    scores.ejecucion = Math.round(
+        (tiempoMap[a['q-tiempo']] || 40) * 0.4 +
+        (expMap[a['q-experiencia']] || 40) * 0.6
+    );
+
+    // 6. ADQUISICIÓN DE CLIENTES
+    const adqMap = {
+        'Redes sociales orgánico': 65,
+        'Publicidad paga (Meta/Google)': 75,
+        'Boca a boca / referidos': 80,
+        'Ventas directas / puerta a puerta': 70,
+        'Alianzas / partnerships': 85,
+        'No lo tengo claro': 20
+    };
+    scores.adquisicion = adqMap[a['q-adquisicion']] || 40;
+
+    // 7. VIABILIDAD FINANCIERA
+    let scoreFinanciero = 50;
+    if (gananciaM > 500000)      scoreFinanciero = 95;
+    else if (gananciaM > 100000) scoreFinanciero = 80;
+    else if (gananciaM > 50000)  scoreFinanciero = 65;
+    else if (gananciaM > 0)      scoreFinanciero = 45;
+    else if (gananciaM === 0)    scoreFinanciero = 30;
+    else                         scoreFinanciero = 10;
+
+    // Ajuste por inversión disponible
+    const invMap = {
+        'Cero (bootstrapping total)': -10,
+        'Menos de $100.000': 0,
+        '$100.000 - $500.000': 10,
+        'Más de $500.000': 20
+    };
+    scoreFinanciero = Math.min(100, scoreFinanciero + (invMap[a['q-inversion']] || 0));
+    scores.financiero = scoreFinanciero;
+
+    // ── SCORE TOTAL PONDERADO ──
+    const pesos = {
+        margen: 0.20,
+        validacion: 0.18,
+        mercado: 0.12,
+        competencia: 0.12,
+        ejecucion: 0.15,
+        adquisicion: 0.10,
+        financiero: 0.13
+    };
+    let total = 0;
+    for (const k in pesos) total += (scores[k] || 0) * pesos[k];
+    total = Math.round(total);
+
+    // ── VEREDICTO ──
+    let veredicto, color, emoji, titulo, subtitulo;
+    if (total >= 70) {
+        veredicto = 'verde'; emoji = '🟢'; titulo = '¡Tu producto tiene potencial real!';
+        subtitulo = 'Los números y el contexto indican que este negocio puede generar dinero. Avanzá con un MVP rápido.';
+        color = 'verde';
+    } else if (total >= 45) {
+        veredicto = 'amarillo'; emoji = '🟡'; titulo = 'Potencial moderado — necesita ajustes';
+        subtitulo = 'Hay oportunidad, pero hay puntos críticos que debés resolver antes de invertir dinero.';
+        color = 'amarillo';
+    } else {
+        veredicto = 'rojo'; emoji = '🔴'; titulo = 'Alto riesgo — no inviertas todavía';
+        subtitulo = 'En su estado actual, este producto tiene baja probabilidad de generar dinero. Revisá los puntos críticos.';
+        color = 'rojo';
+    }
+
+    // ── PUNTO DE EQUILIBRIO ──
+    let breakEven = '—';
+    if (precio > costo && precio > 0) {
+        const costoFijo = 50000; // estimado mínimo
+        const margenUnit = precio - costo;
+        const unidades = Math.ceil(costoFijo / margenUnit);
+        breakEven = unidades + ' ventas/mes';
+    }
+
+    // ── RECOMENDACIONES ──
+    const recs = [];
+
+    if (scores.validacion < 50) {
+        recs.push({ tipo: 'alerta', texto: 'CRÍTICO: Hablá con al menos 10 potenciales clientes ANTES de gastar un peso. El 42% de los startups fracasan por falta de demanda real.' });
+    }
+    if (margen < 30) {
+        recs.push({ tipo: 'alerta', texto: 'Tu margen bruto es muy bajo (' + margen.toFixed(0) + '%). Revisá si podés subir el precio o bajar el costo de producción.' });
+    }
+    if (margen >= 60) {
+        recs.push({ tipo: 'ok', texto: 'Excelente margen bruto (' + margen.toFixed(0) + '%). Tenés espacio para invertir en marketing y seguir siendo rentable.' });
+    }
+    if (scores.adquisicion < 30) {
+        recs.push({ tipo: 'alerta', texto: 'No tenés claro cómo conseguir clientes. Sin un canal de adquisición definido, el negocio no puede crecer.' });
+    }
+    if (scores.ejecucion < 40) {
+        recs.push({ tipo: 'alerta', texto: 'Poco tiempo y/o experiencia disponible. Considerá buscar un socio o co-fundador que complemente tus habilidades.' });
+    }
+    if (scores.competencia >= 75) {
+        recs.push({ tipo: 'ok', texto: 'Buena posición competitiva. Aprovechá la ventana de oportunidad antes de que entren más jugadores.' });
+    }
+    if (scores.competencia < 45) {
+        recs.push({ tipo: 'accion', texto: 'Hay competencia fuerte. Definí tu diferenciador único (precio, velocidad, nicho, experiencia) y comunicalo claramente.' });
+    }
+    if (clientes <= 5 && precio > 0) {
+        recs.push({ tipo: 'accion', texto: 'Con ' + clientes + ' clientes el primer mes, los ingresos serán bajos. Planificá cómo escalar a 50+ clientes en 3 meses.' });
+    }
+    if (gananciaM > 0) {
+        recs.push({ tipo: 'ok', texto: 'Proyección positiva: $' + gananciaM.toLocaleString('es-AR') + ' de ganancia bruta el primer mes si alcanzás ' + clientes + ' clientes.' });
+    }
+    if (a['q-inversion'] === 'Cero (bootstrapping total)') {
+        recs.push({ tipo: 'accion', texto: 'Sin inversión inicial, priorizá canales gratuitos: contenido orgánico, boca a boca y ventas directas. Validá antes de escalar.' });
+    }
+    if (scores.mercado >= 80) {
+        recs.push({ tipo: 'ok', texto: 'Mercado grande. Enfocate en un nicho específico primero para dominar antes de expandirte.' });
+    }
+
+    // Agregar recomendación de próximo paso siempre
+    if (total >= 70) {
+        recs.push({ tipo: 'accion', texto: 'PRÓXIMO PASO: Creá un MVP (versión mínima) en 30 días y conseguí tus primeros 3 clientes pagos. Eso es la validación real.' });
+    } else if (total >= 45) {
+        recs.push({ tipo: 'accion', texto: 'PRÓXIMO PASO: Resolvé los puntos críticos marcados en rojo antes de invertir. Hacé 10 entrevistas con clientes esta semana.' });
+    } else {
+        recs.push({ tipo: 'accion', texto: 'PRÓXIMO PASO: No inviertas dinero todavía. Primero validá la demanda con entrevistas y un prototipo de papel o landing page.' });
+    }
+
+    return { scores, total, veredicto, color, emoji, titulo, subtitulo, margen, gananciaM, ingresoMes, breakEven, recs, precio, costo, clientes };
+}
+
+// ══════════════════════════════════════════
+// MOSTRAR RESULTADO
+// ══════════════════════════════════════════
+function showResult() {
+    const r = analyzeProduct();
+    const a = state.answers;
+
+    const metricasHTML = `
+        <div class="metric-card ${r.scores.margen >= 60 ? 'positivo' : r.scores.margen >= 35 ? 'neutro' : 'negativo'}">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div style="font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;">Margen bruto</div>
+                    <div style="font-size:20px;font-weight:800;color:#1e293b;margin-top:2px;">${r.margen.toFixed(1)}%</div>
+                </div>
+                <div style="font-size:24px;">${r.scores.margen >= 60 ? '✅' : r.scores.margen >= 35 ? '⚠️' : '❌'}</div>
+            </div>
+            <div class="metric-bar-track">
+                <div class="metric-bar-fill" style="width:${r.scores.margen}%;background:${r.scores.margen >= 60 ? '#22c55e' : r.scores.margen >= 35 ? '#f59e0b' : '#ef4444'};"></div>
+            </div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:6px;">Precio $${(r.precio||0).toLocaleString('es-AR')} — Costo $${(r.costo||0).toLocaleString('es-AR')} por unidad</div>
+        </div>
+
+        <div class="metric-card ${r.scores.validacion >= 60 ? 'positivo' : r.scores.validacion >= 35 ? 'neutro' : 'negativo'}">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div style="font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;">Validación de mercado</div>
+                    <div style="font-size:20px;font-weight:800;color:#1e293b;margin-top:2px;">${r.scores.validacion}/100</div>
+                </div>
+                <div style="font-size:24px;">${r.scores.validacion >= 60 ? '✅' : r.scores.validacion >= 35 ? '⚠️' : '❌'}</div>
+            </div>
+            <div class="metric-bar-track">
+                <div class="metric-bar-fill" style="width:${r.scores.validacion}%;background:${r.scores.validacion >= 60 ? '#22c55e' : r.scores.validacion >= 35 ? '#f59e0b' : '#ef4444'};"></div>
+            </div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:6px;">${a['q-validacion'] || '—'}</div>
+        </div>
+
+        <div class="metric-card ${r.scores.financiero >= 60 ? 'positivo' : r.scores.financiero >= 35 ? 'neutro' : 'negativo'}">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div style="font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;">Viabilidad financiera</div>
+                    <div style="font-size:20px;font-weight:800;color:#1e293b;margin-top:2px;">${r.scores.financiero}/100</div>
+                </div>
+                <div style="font-size:24px;">${r.scores.financiero >= 60 ? '✅' : r.scores.financiero >= 35 ? '⚠️' : '❌'}</div>
+            </div>
+            <div class="metric-bar-track">
+                <div class="metric-bar-fill" style="width:${r.scores.financiero}%;background:${r.scores.financiero >= 60 ? '#22c55e' : r.scores.financiero >= 35 ? '#f59e0b' : '#ef4444'};"></div>
+            </div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:6px;">Ganancia estimada mes 1: $${(r.gananciaM||0).toLocaleString('es-AR')}</div>
+        </div>
+
+        <div class="metric-card ${r.scores.ejecucion >= 60 ? 'positivo' : r.scores.ejecucion >= 35 ? 'neutro' : 'negativo'}">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div style="font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;">Capacidad de ejecución</div>
+                    <div style="font-size:20px;font-weight:800;color:#1e293b;margin-top:2px;">${r.scores.ejecucion}/100</div>
+                </div>
+                <div style="font-size:24px;">${r.scores.ejecucion >= 60 ? '✅' : r.scores.ejecucion >= 35 ? '⚠️' : '❌'}</div>
+            </div>
+            <div class="metric-bar-track">
+                <div class="metric-bar-fill" style="width:${r.scores.ejecucion}%;background:${r.scores.ejecucion >= 60 ? '#22c55e' : r.scores.ejecucion >= 35 ? '#f59e0b' : '#ef4444'};"></div>
+            </div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:6px;">${a['q-tiempo'] || '—'} · ${a['q-experiencia'] || '—'}</div>
+        </div>
+
+        <div class="metric-card ${r.scores.competencia >= 60 ? 'positivo' : r.scores.competencia >= 35 ? 'neutro' : 'negativo'}">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div style="font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;">Posición competitiva</div>
+                    <div style="font-size:20px;font-weight:800;color:#1e293b;margin-top:2px;">${r.scores.competencia}/100</div>
+                </div>
+                <div style="font-size:24px;">${r.scores.competencia >= 60 ? '✅' : r.scores.competencia >= 35 ? '⚠️' : '❌'}</div>
+            </div>
+            <div class="metric-bar-track">
+                <div class="metric-bar-fill" style="width:${r.scores.competencia}%;background:${r.scores.competencia >= 60 ? '#22c55e' : r.scores.competencia >= 35 ? '#f59e0b' : '#ef4444'};"></div>
+            </div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:6px;">${a['q-competencia'] || '—'}</div>
+        </div>
+
+        <div class="metric-card ${r.scores.adquisicion >= 60 ? 'positivo' : r.scores.adquisicion >= 35 ? 'neutro' : 'negativo'}">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div style="font-size:13px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;">Canal de adquisición</div>
+                    <div style="font-size:20px;font-weight:800;color:#1e293b;margin-top:2px;">${r.scores.adquisicion}/100</div>
+                </div>
+                <div style="font-size:24px;">${r.scores.adquisicion >= 60 ? '✅' : r.scores.adquisicion >= 35 ? '⚠️' : '❌'}</div>
+            </div>
+            <div class="metric-bar-track">
+                <div class="metric-bar-fill" style="width:${r.scores.adquisicion}%;background:${r.scores.adquisicion >= 60 ? '#22c55e' : r.scores.adquisicion >= 35 ? '#f59e0b' : '#ef4444'};"></div>
+            </div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:6px;">${a['q-adquisicion'] || '—'}</div>
+        </div>
+    `;
+
+    const recsHTML = r.recs.map(rec => `
+        <div class="recommendation-item ${rec.tipo}">
+            <span style="font-size:16px;flex-shrink:0;">${rec.tipo === 'ok' ? '✅' : rec.tipo === 'alerta' ? '🚨' : '➡️'}</span>
+            <span>${rec.texto}</span>
+        </div>
+    `).join('');
+
+    const html = `
+        <!-- Veredicto principal -->
+        <div class="result-header ${r.color}">
+            <div class="score-circle ${r.color}">
+                <span style="font-size:32px;line-height:1;">${r.total}</span>
+                <span style="font-size:12px;opacity:0.85;">/100</span>
+            </div>
+            <span class="verdict-badge ${r.color}">${r.color === 'verde' ? 'VIABLE' : r.color === 'amarillo' ? 'RIESGOSO' : 'NO VIABLE'}</span>
+            <h2 style="font-size:22px;font-weight:800;color:#1e293b;margin-top:12px;">${r.emoji} ${r.titulo}</h2>
+            <p style="color:#475569;margin-top:8px;font-size:15px;">${r.subtitulo}</p>
+        </div>
+
+        <!-- Resumen financiero rápido -->
+        <div style="background:#f8fafc;border-radius:16px;padding:20px 24px;margin-bottom:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center;">
+            <div>
+                <div style="font-size:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Ingreso mes 1</div>
+                <div style="font-size:22px;font-weight:800;color:#1e293b;margin-top:4px;">$${(r.ingresoMes||0).toLocaleString('es-AR')}</div>
+                <div style="font-size:12px;color:#64748b;">${r.clientes} clientes × $${(r.precio||0).toLocaleString('es-AR')}</div>
+            </div>
+            <div style="border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
+                <div style="font-size:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Ganancia bruta</div>
+                <div style="font-size:22px;font-weight:800;color:${r.gananciaM >= 0 ? '#22c55e' : '#ef4444'};margin-top:4px;">$${(r.gananciaM||0).toLocaleString('es-AR')}</div>
+                <div style="font-size:12px;color:#64748b;">Margen ${r.margen.toFixed(0)}%</div>
+            </div>
+            <div>
+                <div style="font-size:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Punto de equilibrio</div>
+                <div style="font-size:22px;font-weight:800;color:#1e293b;margin-top:4px;">${r.breakEven}</div>
+                <div style="font-size:12px;color:#64748b;">Para cubrir costos fijos</div>
+            </div>
+        </div>
+
+        <!-- Métricas detalladas -->
+        <h3 style="font-size:17px;font-weight:700;color:#1e293b;margin-bottom:14px;">Análisis por dimensión</h3>
+        ${metricasHTML}
+
+        <!-- Recomendaciones -->
+        <h3 style="font-size:17px;font-weight:700;color:#1e293b;margin-top:24px;margin-bottom:14px;">Recomendaciones de la IA</h3>
+        ${recsHTML}
+
+        <!-- Disclaimer -->
+        <div style="background:#f1f5f9;border-radius:12px;padding:14px 18px;margin-top:20px;font-size:12px;color:#64748b;line-height:1.6;">
+            <strong>⚠️ Importante:</strong> Este análisis es una estimación basada en las respuestas proporcionadas. No reemplaza el asesoramiento de un profesional de negocios. Los resultados son orientativos y deben complementarse con investigación de mercado real, entrevistas con clientes y análisis financiero detallado.
+        </div>
+    `;
+
+    document.getElementById('resultContent').innerHTML = html;
+
+    // Mostrar resultado
+    document.getElementById('step-analyzing').classList.remove('active');
+    document.getElementById('step-result').classList.add('active');
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('progressPct').textContent = '100%';
+    document.getElementById('progressLabel').textContent = 'Análisis completado';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Animar barras con delay
+    setTimeout(() => {
+        document.querySelectorAll('.metric-bar-fill').forEach(bar => {
+            const w = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => { bar.style.width = w; }, 100);
+        });
+    }, 200);
+}
+
+// ══════════════════════════════════════════
+// RESET
+// ══════════════════════════════════════════
+function resetApp() {
+    // Limpiar estado
+    state.currentStep = 1;
+    state.answers = {};
+
+    // Limpiar inputs
+    ['q-nombre','q-descripcion','q-cliente','q-problema','q-precio','q-costo','q-clientes','q-extra'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    // Limpiar selecciones
+    document.querySelectorAll('.option-btn.selected').forEach(b => b.classList.remove('selected'));
+
+    // Resetear indicadores
+    for (let i = 1; i <= 4; i++) {
+        const ind = document.getElementById('ind-' + i);
+        if (ind) {
+            ind.classList.remove('active', 'done');
+            ind.innerHTML = i;
+        }
+    }
+    document.getElementById('ind-1').classList.add('active');
+
+    // Resetear pasos de análisis
+    ['as-1','as-2','as-3','as-4','as-5','as-6'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active', 'done');
+    });
+
+    // Ocultar todos los pasos
+    document.querySelectorAll('.step-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-1').classList.add('active');
+
+    // Resetear progreso
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressPct').textContent = '0%';
+    document.getElementById('progressLabel').textContent = 'Paso 1 de 4 — Tu producto';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
