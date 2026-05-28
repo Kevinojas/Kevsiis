@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ValidaIA — ¿Tu producto va a generar plata?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* ── GRADIENTS & ACCENTS ── */
+        .gradient-text {
+            background: linear-gradient(90deg, #a78bfa, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-btn {
+            background: linear-gradient(135deg, #7c3aed, #2563eb);
+            transition: all 0.3s ease;
+        }
+        .gradient-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.5); }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+        }
+        .card-glow {
+            background: rgba(124,58,237,0.08);
+            border: 1px solid rgba(124,58,237,0.3);
+            border-radius: 20px;
+        }
+
+        /* ── FORM INPUTS ── */
+        .input-field {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            color: #fff;
+            padding: 12px 16px;
+            width: 100%;
+            font-size: 15px;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .input-field:focus {
+            border-color: #7c3aed;
+            background: rgba(124,58,237,0.1);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.2);
+        }
+        .input-field::placeholder { color: rgba(255,255,255,0.35); }
+        select.input-field option { background: #1e1b4b; color: #fff; }
+
+        label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); letter-spacing: 0.5px; text-transform: uppercase; }
+
+        /* ── SCORE RING ── */
+        .score-ring {
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            margin: 0 auto;
+        }
+        .score-ring::before {
+            content: '';
+            position: absolute; inset: 0;
+            border-radius: 50%;
+            padding: 6px;
+            background: conic-gradient(var(--score-color) var(--score-deg), rgba(255,255,255,0.1) 0deg);
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 12px), #000 calc(100% - 12px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 12px), #000 calc(100% - 12px));
+        }
+        .score-inner {
+            width: 130px; height: 130px;
+            border-radius: 50%;
+            background: rgba(15,12,41,0.9);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 1;
+        }
+
+        /* ── METER BARS ── */
+        .meter-bar {
+            height: 8px;
+            border-radius: 99px;
+            background: rgba(255,255,255,0.1);
+            overflow: hidden;
+        }
+        .meter-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        /* ── VERDICT BADGE ── */
+        .verdict-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 24px;
+            border-radius: 99px;
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── TABS ── */
+        .tab-btn {
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: rgba(255,255,255,0.5);
+            border: none;
+            background: transparent;
+        }
+        .tab-btn.active {
+            background: rgba(124,58,237,0.3);
+            color: #a78bfa;
+            border: 1px solid rgba(124,58,237,0.4);
+        }
+
+        /* ── LOADING ── */
+        .ai-thinking {
+            display: none;
+        }
+        .ai-thinking.visible { display: flex; }
+        .dot-pulse span {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #7c3aed;
+            margin: 0 3px;
+            animation: pulse 1.4s infinite ease-in-out;
+        }
+        .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+        .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse {
+            0%,80%,100% { transform: scale(0.6); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ── RESULT PANEL ── */
+        #result-panel { display: none; }
+        #result-panel.visible { display: block; }
+
+        /* ── STEP INDICATOR ── */
+        .step-dot {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700;
+            flex-shrink: 0;
+        }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.1); }
+
+        /* ── CHART BARS ── */
+        .chart-bar-wrap { display: flex; align-items: flex-end; gap: 8px; height: 120px; }
+        .chart-bar {
+            flex: 1;
+            border-radius: 6px 6px 0 0;
+            transition: height 1s ease;
+            min-width: 30px;
+            position: relative;
+        }
+        .chart-bar span {
+            position: absolute;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+        }
+
+        /* ── RISK ITEMS ── */
+        .risk-item { border-left: 3px solid; padding-left: 12px; }
+        .risk-high { border-color: #ef4444; }
+        .risk-med  { border-color: #f59e0b; }
+        .risk-low  { border-color: #10b981; }
+
+        /* ── SCROLL ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.5); border-radius: 3px; }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeInUp 0.5s ease forwards; }
+        .fade-in-delay-1 { animation: fadeInUp 0.5s 0.1s ease both; }
+        .fade-in-delay-2 { animation: fadeInUp 0.5s 0.2s ease both; }
+        .fade-in-delay-3 { animation: fadeInUp 0.5s 0.3s ease both; }
+        .fade-in-delay-4 { animation: fadeInUp 0.5s 0.4s ease both; }
+
+        /* ── TOOLTIP ── */
+        .tooltip { position: relative; cursor: help; }
+        .tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e1b4b;
+            border: 1px solid rgba(124,58,237,0.4);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 99;
+        }
+
+        /* ── SECTION HEADER ── */
+        .section-tag {
+            display: inline-block;
+            background: rgba(124,58,237,0.2);
+            border: 1px solid rgba(124,58,237,0.4);
+            color: #a78bfa;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 99px;
+            margin-bottom: 8px;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .grid-cols-3-resp { grid-template-columns: 1fr !important; }
+            .grid-cols-2-resp { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     HERO HEADER
+══════════════════════════════════════════════ -->
+<div style="max-width:900px; margin:0 auto; padding:40px 20px 0;">
+
+    <div class="text-center mb-10 fade-in">
+        <div class="section-tag">🤖 Inteligencia Artificial · Validación de Negocios</div>
+        <h1 style="font-size:clamp(2rem,5vw,3.5rem); font-weight:900; line-height:1.1; margin-top:12px;">
+            <span class="gradient-text">¿Tu producto va a</span><br>
+            <span style="color:#fff;">generar plata?</span>
+        </h1>
+        <p style="color:rgba(255,255,255,0.55); font-size:17px; margin-top:16px; max-width:560px; margin-left:auto; margin-right:auto;">
+            Analizá tu idea de negocio con IA antes de gastar un solo peso argentino.
+            Obtené un diagnóstico completo en segundos.
+        </p>
+    </div>
+
+    <!-- ── STEP INDICATOR ── -->
+    <div class="flex items-center gap-2 mb-10 fade-in-delay-1" style="max-width:500px; margin:0 auto 40px;">
+        <div class="step-dot" style="background:rgba(124,58,237,0.8);" id="step1-dot">1</div>
+        <div class="step-line" id="line1"></div>
+        <div class="step-dot" style="background:rgba(255,255,255,0.1);" id="step2-dot">2</div>
+        <div class="step-line" id="line2"></div>
+        <div class="step-dot" style="background:rgba(255,255,255,0.1);" id="step3-dot">3</div>
+        <div style="font-size:12px; color:rgba(255,255,255,0.4); margin-left:8px;" id="step-label">Completá el formulario</div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         FORM CARD
+    ══════════════════════════════════════════════ -->
+    <div class="card p-8 mb-8 fade-in-delay-2" id="form-card">
+        <h2 style="font-size:20px; font-weight:700; margin-bottom:24px; color:#fff;">
+            📋 Contanos sobre tu producto o servicio
+        </h2>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;" class="grid-cols-2-resp">
+
+            <!-- Nombre del producto -->
+            <div style="grid-column:1/-1;">
+                <label>Nombre del producto / servicio</label>
+                <input type="text" class="input-field mt-2" id="inp-nombre"
+                    placeholder="Ej: App de delivery de comida saludable, Ropa deportiva online...">
+            </div>
+
+            <!-- Categoría -->
+            <div>
+                <label>Categoría</label>
+                <select class="input-field mt-2" id="inp-categoria">
+                    <option value="">Seleccioná una categoría</option>
+                    <option value="tech">Tecnología / App / Software</option>
+                    <option value="ecommerce">E-commerce / Tienda online</option>
+                    <option value="food">Gastronomía / Delivery</option>
+                    <option value="ropa">Indumentaria / Moda</option>
+                    <option value="servicio">Servicio profesional / Consultoría</option>
+                    <option value="educacion">Educación / Cursos online</option>
+                    <option value="salud">Salud / Bienestar / Fitness</option>
+                    <option value="inmobiliario">Inmobiliario / Construcción</option>
+                    <option value="agro">Agro / Campo</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+
+            <!-- Etapa -->
+            <div>
+                <label>Etapa actual</label>
+                <select class="input-field mt-2" id="inp-etapa">
+                    <option value="">Seleccioná la etapa</option>
+                    <option value="idea">Solo tengo la idea</option>
+                    <option value="validando">Validando con primeros clientes</option>
+                    <option value="mvp">Tengo un MVP / prototipo</option>
+                    <option value="lanzado">Ya está lanzado</option>
+                    <option value="escalando">Escalando / creciendo</option>
+                </select>
+            </div>
+
+            <!-- Precio de venta -->
+            <div>
+                <label>Precio de venta estimado (ARS $)</label>
+                <input type="number" class="input-field mt-2" id="inp-precio"
+                    placeholder="Ej: 15000" min="0">
+            </div>
+
+            <!-- Costo -->
+            <div>
+                <label>Costo por unidad / mes (ARS $)</label>
+                <input type="number" class="input-field mt-2" id="inp-costo"
+                    placeholder="Ej: 6000" min="0">
+            </div>
+
+            <!-- Inversión inicial -->
+            <div>
+                <label>Inversión inicial estimada (ARS $)</label>
+                <input type="number" class="input-field mt-2" id="inp-inversion"
+                    placeholder="Ej: 500000" min="0">
+            </div>
+
+            <!-- Clientes esperados -->
+            <div>
+                <label>Clientes esperados por mes</label>
+                <input type="number" class="input-field mt-2" id="inp-clientes"
+                    placeholder="Ej: 50" min="0">
+            </div>
+
+            <!-- Competencia -->
+            <div>
+                <label>Nivel de competencia en el mercado</label>
+                <select class="input-field mt-2" id="inp-competencia">
+                    <option value="">Seleccioná</option>
+                    <option value="baja">Baja — Soy casi el único</option>
+                    <option value="media">Media — Hay algunos competidores</option>
+                    <option value="alta">Alta — Mercado muy competido</option>
+                    <option value="muy-alta">Muy alta — Dominado por grandes marcas</option>
+                </select>
+            </div>
+
+            <!-- Diferenciación -->
+            <div>
+                <label>¿Tenés algo diferente a la competencia?</label>
+                <select class="input-field mt-2" id="inp-diferenciacion">
+                    <option value="">Seleccioná</option>
+                    <option value="si-fuerte">Sí, ventaja muy clara y difícil de copiar</option>
+                    <option value="si-debil">Sí, pero fácil de copiar</option>
+                    <option value="no">No, es similar a lo que ya existe</option>
+                    <option value="no-se">No sé / No lo analicé</option>
+                </select>
+            </div>
+
+            <!-- Público objetivo -->
+            <div style="grid-column:1/-1;">
+                <label>¿A quién le vendés? (público objetivo)</label>
+                <input type="text" class="input-field mt-2" id="inp-publico"
+                    placeholder="Ej: Mujeres de 25-40 años, clase media, que hacen deporte...">
+            </div>
+
+            <!-- Canales de venta -->
+            <div>
+                <label>Canal de venta principal</label>
+                <select class="input-field mt-2" id="inp-canal">
+                    <option value="">Seleccioná</option>
+                    <option value="instagram">Instagram / Redes sociales</option>
+                    <option value="mercadolibre">Mercado Libre</option>
+                    <option value="tienda-propia">Tienda propia online</option>
+                    <option value="local">Local físico</option>
+                    <option value="b2b">Venta directa B2B</option>
+                    <option value="whatsapp">WhatsApp / Boca a boca</option>
+                    <option value="mixto">Mixto / Varios canales</option>
+                </select>
+            </div>
+
+            <!-- Experiencia -->
+            <div>
+                <label>Experiencia en el rubro</label>
+                <select class="input-field mt-2" id="inp-experiencia">
+                    <option value="">Seleccioná</option>
+                    <option value="ninguna">Ninguna — Es nuevo para mí</option>
+                    <option value="poca">Poca — Menos de 1 año</option>
+                    <option value="media">Media — 1 a 3 años</option>
+                    <option value="mucha">Mucha — Más de 3 años</option>
+                </select>
+            </div>
+
+            <!-- Descripción libre -->
+            <div style="grid-column:1/-1;">
+                <label>Describí tu idea en detalle (opcional pero recomendado)</label>
+                <textarea class="input-field mt-2" id="inp-descripcion" rows="4"
+                    placeholder="Contanos más sobre tu producto, cómo funciona, qué problema resuelve, por qué creés que va a funcionar..."></textarea>
+            </div>
+
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="text-center mt-8">
+            <button onclick="analizarNegocio()" class="gradient-btn text-white font-bold py-4 px-12 rounded-2xl text-lg" style="min-width:280px;">
+                🚀 Analizar con IA ahora
+            </button>
+            <p style="color:rgba(255,255,255,0.3); font-size:12px; margin-top:10px;">
+                Análisis gratuito · Sin registro · Resultado en segundos
+            </p>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         AI THINKING LOADER
+    ══════════════════════════════════════════════ -->
+    <div class="ai-thinking flex-col items-center justify-center py-16 text-center" id="loader">
+        <div style="font-size:48px; margin-bottom:20px;">🤖</div>
+        <h3 style="font-size:22px; font-weight:700; margin-bottom:8px;">La IA está analizando tu negocio...</h3>
+        <p style="color:rgba(255,255,255,0.5); margin-bottom:24px;" id="loader-msg">Evaluando viabilidad financiera</p>
+        <div class="dot-pulse">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="card mt-8 p-4" style="max-width:400px; text-align:left;">
+            <div id="loader-steps" style="font-size:13px; color:rgba(255,255,255,0.6); line-height:2;">
+                <div id="ls1">⏳ Calculando márgenes y rentabilidad...</div>
+                <div id="ls2" style="opacity:0.3;">⏳ Analizando mercado y competencia...</div>
+                <div id="ls3" style="opacity:0.3;">⏳ Evaluando riesgos del negocio...</div>
+                <div id="ls4" style="opacity:0.3;">⏳ Proyectando flujo de caja...</div>
+                <div id="ls5" style="opacity:0.3;">⏳ Generando recomendaciones...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         RESULT PANEL
+    ══════════════════════════════════════════════ -->
+    <div id="result-panel">
+
+        <!-- ── VEREDICTO PRINCIPAL ── -->
+        <div class="card-glow p-8 mb-6 text-center fade-in" id="verdict-card">
+            <div class="section-tag">Veredicto de la IA</div>
+            <div id="verdict-badge-wrap" class="mt-4 mb-6"></div>
+            <p id="verdict-text" style="font-size:16px; color:rgba(255,255,255,0.75); max-width:600px; margin:0 auto; line-height:1.7;"></p>
+        </div>
+
+        <!-- ── SCORE + MÉTRICAS ── -->
+        <div style="display:grid; grid-template-columns:1fr 2fr; gap:20px; margin-bottom:20px;" class="grid-cols-2-resp">
+
+            <!-- Score ring -->
+            <div class="card p-6 text-center fade-in-delay-1">
+                <div class="section-tag">Score Global</div>
+                <div class="score-ring mt-4" id="score-ring">
+                    <div class="score-inner">
+                        <span id="score-num" style="font-size:42px; font-weight:900; line-height:1;"></span>
+                        <span style="font-size:13px; color:rgba(255,255,255,0.5);">/100</span>
+                        <span id="score-label" style="font-size:11px; font-weight:700; margin-top:4px;"></span>
+                    </div>
+                </div>
+                <p id="score-desc" style="font-size:13px; color:rgba(255,255,255,0.5); margin-top:16px;"></p>
+            </div>
+
+            <!-- Métricas clave -->
+            <div class="card p-6 fade-in-delay-1">
+                <div class="section-tag">Métricas Clave</div>
+                <div style="margin-top:16px; display:flex; flex-direction:column; gap:16px;" id="metricas-wrap"></div>
+            </div>
+        </div>
+
+        <!-- ── TABS ── -->
+        <div class="card p-6 mb-6 fade-in-delay-2">
+            <div style="display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap;" id="tabs-bar">
+                <button class="tab-btn active" onclick="showTab('financiero', this)">💰 Financiero</button>
+                <button class="tab-btn" onclick="showTab('mercado', this)">📊 Mercado</button>
+                <button class="tab-btn" onclick="showTab('riesgos', this)">⚠️ Riesgos</button>
+                <button class="tab-btn" onclick="showTab('proyeccion', this)">📈 Proyección</button>
+                <button class="tab-btn" onclick="showTab('recomendaciones', this)">💡 Recomendaciones</button>
+            </div>
+
+            <!-- TAB: FINANCIERO -->
+            <div id="tab-financiero" class="tab-content">
+                <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;" class="grid-cols-3-resp" id="fin-cards"></div>
+                <div id="fin-analisis" style="font-size:14px; color:rgba(255,255,255,0.7); line-height:1.8;"></div>
+            </div>
+
+            <!-- TAB: MERCADO -->
+            <div id="tab-mercado" class="tab-content" style="display:none;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;" class="grid-cols-2-resp">
+                    <div id="mercado-left"></div>
+                    <div id="mercado-right"></div>
+                </div>
+            </div>
+
+            <!-- TAB: RIESGOS -->
+            <div id="tab-riesgos" class="tab-content" style="display:none;">
+                <div id="riesgos-list" style="display:flex; flex-direction:column; gap:12px;"></div>
+            </div>
+
+            <!-- TAB: PROYECCIÓN -->
+            <div id="tab-proyeccion" class="tab-content" style="display:none;">
+                <p style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:20px;">Proyección de ingresos mensuales (ARS $) — Escenario base</p>
+                <div class="chart-bar-wrap mb-8" id="chart-bars"></div>
+                <div style="margin-top:40px;" id="proyeccion-tabla"></div>
+            </div>
+
+            <!-- TAB: RECOMENDACIONES -->
+            <div id="tab-recomendaciones" class="tab-content" style="display:none;">
+                <div id="recomendaciones-list" style="display:flex; flex-direction:column; gap:16px;"></div>
+            </div>
+        </div>
+
+        <!-- ── COMPARATIVA ESCENARIOS ── -->
+        <div class="card p-6 mb-6 fade-in-delay-3" id="escenarios-card">
+            <div class="section-tag">Escenarios</div>
+            <h3 style="font-size:18px; font-weight:700; margin:12px 0 20px;">Comparativa de escenarios a 12 meses</h3>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;" class="grid-cols-3-resp" id="escenarios-wrap"></div>
+        </div>
+
+        <!-- ── ACCIÓN FINAL ── -->
+        <div class="card p-8 mb-10 text-center fade-in-delay-4" id="accion-card">
+            <div id="accion-icon" style="font-size:48px; margin-bottom:12px;"></div>
+            <h3 id="accion-titulo" style="font-size:22px; font-weight:800; margin-bottom:8px;"></h3>
+            <p id="accion-texto" style="color:rgba(255,255,255,0.6); font-size:15px; max-width:500px; margin:0 auto 24px;"></p>
+            <button onclick="resetForm()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:12px 32px; border-radius:12px; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                🔄 Analizar otro producto
+            </button>
+        </div>
+
+    </div><!-- /result-panel -->
+
+</div><!-- /container -->
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT — MOTOR DE IA
+══════════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────
+// UTILIDADES
+// ─────────────────────────────────────────────
+const fmt = n => new Intl.NumberFormat('es-AR', { style:'currency', currency:'ARS', maximumFractionDigits:0 }).format(n);
+const fmtNum = n => new Intl.NumberFormat('es-AR').format(Math.round(n));
+const clamp = (v,min,max) => Math.min(Math.max(v,min),max);
+
+function showTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).style.display = 'block';
+    btn.classList.add('active');
+}
+
+function resetForm() {
+    document.getElementById('result-panel').classList.remove('visible');
+    document.getElementById('form-card').style.display = 'block';
+    document.getElementById('result-panel').style.display = 'none';
+    // reset steps
+    setStep(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setStep(n) {
+    const dots = ['step1-dot','step2-dot','step3-dot'];
+    const labels = ['Completá el formulario','Analizando con IA...','Resultados listos'];
+    dots.forEach((id,i) => {
+        const el = document.getElementById(id);
+        el.style.background = i < n ? 'rgba(124,58,237,0.8)' : 'rgba(255,255,255,0.1)';
+        el.style.color = i < n ? '#fff' : 'rgba(255,255,255,0.4)';
+    });
+    document.getElementById('step-label').textContent = labels[n-1];
+    ['line1','line2'].forEach((id,i) => {
+        document.getElementById(id).style.background = i < n-1 ? 'rgba(124,58,237,0.6)' : 'rgba(255,255,255,0.1)';
+    });
+}
+
+// ─────────────────────────────────────────────
+// MOTOR DE ANÁLISIS IA
+// ─────────────────────────────────────────────
+function calcularScore(data) {
+    let score = 0;
+    const detalles = {};
+
+    // 1. MARGEN BRUTO (0-25 pts)
+    const margen = data.precio > 0 ? ((data.precio - data.costo) / data.precio) * 100 : 0;
+    let ptsMargen = 0;
+    if (margen >= 60) ptsMargen = 25;
+    else if (margen >= 40) ptsMargen = 20;
+    else if (margen >= 25) ptsMargen = 14;
+    else if (margen >= 10) ptsMargen = 7;
+    else ptsMargen = 2;
+    score += ptsMargen;
+    detalles.margen = { valor: margen, pts: ptsMargen, max: 25 };
+
+    // 2. COMPETENCIA (0-20 pts)
+    const compMap = { 'baja': 20, 'media': 14, 'alta': 7, 'muy-alta': 3 };
+    const ptsComp = compMap[data.competencia] || 10;
+    score += ptsComp;
+    detalles.competencia = { pts: ptsComp, max: 20 };
+
+    // 3. DIFERENCIACIÓN (0-20 pts)
+    const difMap = { 'si-fuerte': 20, 'si-debil': 12, 'no': 4, 'no-se': 6 };
+    const ptsDif = difMap[data.diferenciacion] || 8;
+    score += ptsDif;
+    detalles.diferenciacion = { pts: ptsDif, max: 20 };
+
+    // 4. PAYBACK / RECUPERO (0-15 pts)
+    const ingresoMensual = data.precio * data.clientes;
+    const costoMensual = data.costo * data.clientes;
+    const gananciaNet = ingresoMensual - costoMensual;
+    let ptsPayback = 0;
+    if (data.inversion > 0 && gananciaNet > 0) {
+        const mesesPayback = data.inversion / gananciaNet;
+        if (mesesPayback <= 3) ptsPayback = 15;
+        else if (mesesPayback <= 6) ptsPayback = 12;
+        else if (mesesPayback <= 12) ptsPayback = 8;
+        else if (mesesPayback <= 24) ptsPayback = 4;
+        else ptsPayback = 1;
+    } else if (data.inversion === 0) {
+        ptsPayback = 12;
+    }
+    score += ptsPayback;
+    detalles.payback = { pts: ptsPayback, max: 15 };
+
+    // 5. EXPERIENCIA (0-10 pts)
+    const expMap = { 'mucha': 10, 'media': 7, 'poca': 4, 'ninguna': 2 };
+    const ptsExp = expMap[data.experiencia] || 4;
+    score += ptsExp;
+    detalles.experiencia = { pts: ptsExp, max: 10 };
+
+    // 6. CANAL DE VENTA (0-10 pts)
+    const canalMap = { 'mercadolibre': 9, 'tienda-propia': 8, 'instagram': 7, 'b2b': 9, 'mixto': 10, 'local': 6, 'whatsapp': 5 };
+    const ptsCan = canalMap[data.canal] || 5;
+    score += ptsCan;
+    detalles.canal = { pts: ptsCan, max: 10 };
+
+    return { score: Math.round(clamp(score, 0, 100)), detalles, margen, gananciaNet, ingresoMensual, costoMensual };
+}
+
+function generarAnalisis(data, calc) {
+    const { score, margen, gananciaNet, ingresoMensual, costoMensual } = calc;
+
+    // ── VEREDICTO ──
+    let veredicto, verdColor, verdIcon, verdText;
+    if (score >= 75) {
+        veredicto = '¡SÍ VA A GENERAR PLATA!';
+        verdColor = '#10b981';
+        verdIcon = '🚀';
+        verdText = `Tu negocio tiene una base sólida para ser rentable. Con un margen del ${margen.toFixed(1)}% y las condiciones actuales del mercado, las proyecciones son positivas. Hay oportunidades claras de crecimiento si ejecutás bien.`;
+    } else if (score >= 55) {
+        veredicto = 'PUEDE FUNCIONAR CON AJUSTES';
+        verdColor = '#f59e0b';
+        verdIcon = '⚡';
+        verdText = `Tu idea tiene potencial pero necesita optimizaciones importantes antes de escalar. Hay factores de riesgo que podés mitigar con los cambios correctos. No gastes todo de entrada.`;
+    } else if (score >= 35) {
+        veredicto = 'RIESGO ALTO — REVISÁ ANTES';
+        verdColor = '#f97316';
+        verdIcon = '⚠️';
+        verdText = `El modelo de negocio actual presenta desafíos significativos. Antes de invertir, necesitás validar mejor el mercado y mejorar los márgenes. Empezá chico y probá.`;
+    } else {
+        veredicto = 'NO INVIERTAS AÚN';
+        verdColor = '#ef4444';
+        verdIcon = '🛑';
+        verdText = `Con los números actuales, el negocio tiene alta probabilidad de no ser rentable. Necesitás replantear el modelo, los precios o el mercado objetivo antes de gastar un peso.`;
+    }
+
+    // ── PROYECCIÓN 12 MESES ──
+    const proyeccion = [];
+    let acumulado = -data.inversion;
+    const crecimiento = score >= 70 ? 1.08 : score >= 50 ? 1.05 : score >= 35 ? 1.02 : 1.0;
+    let clientesMes = data.clientes;
+    for (let m = 1; m <= 12; m++) {
+        if (m > 1) clientesMes = Math.round(clientesMes * crecimiento);
+        const ingreso = data.precio * clientesMes;
+        const costo = data.costo * clientesMes;
+        const ganancia = ingreso - costo;
+        acumulado += ganancia;
+        proyeccion.push({ mes: m, ingreso, costo, ganancia, acumulado, clientes: clientesMes });
+    }
+
+    // ── PAYBACK ──
+    let mesesPayback = null;
+    if (data.inversion > 0) {
+        for (let i = 0; i < proyeccion.length; i++) {
+            if (proyeccion[i].acumulado >= 0) { mesesPayback = i + 1; break; }
+        }
+    }
+
+    // ── RIESGOS ──
+    const riesgos = [];
+    if (margen < 30) riesgos.push({ nivel:'high', titulo:'Margen muy bajo', desc:`Tu margen del ${margen.toFixed(1)}% es insuficiente. Cualquier aumento de costos o descuento te puede llevar a pérdida. Necesitás al menos 35-40%.` });
+    if (data.competencia === 'alta' || data.competencia === 'muy-alta') riesgos.push({ nivel:'high', titulo:'Mercado muy competido', desc:'Entrar a un mercado saturado sin diferenciación clara es el error más común. Necesitás un ángulo único.' });
+    if (data.diferenciacion === 'no' || data.diferenciacion === 'no-se') riesgos.push({ nivel:'high', titulo:'Sin diferenciación clara', desc:'Si tu producto es igual al de la competencia, la única forma de competir es por precio, lo que destruye el margen.' });
+    if (data.experiencia === 'ninguna') riesgos.push({ nivel:'med', titulo:'Sin experiencia en el rubro', desc:'La curva de aprendizaje puede ser costosa. Considerá asociarte con alguien con experiencia o hacer mentoring.' });
+    if (data.canal === 'whatsapp') riesgos.push({ nivel:'med', titulo:'Canal de venta limitado', desc:'Depender solo de WhatsApp limita el crecimiento. Necesitás diversificar a plataformas con mayor alcance.' });
+    if (data.inversion > ingresoMensual * 6) riesgos.push({ nivel:'high', titulo:'Inversión inicial muy alta', desc:`Tu inversión de ${fmt(data.inversion)} equivale a más de 6 meses de ingresos. El riesgo financiero es elevado.` });
+    if (data.clientes < 10) riesgos.push({ nivel:'med', titulo:'Base de clientes muy pequeña', desc:'Con menos de 10 clientes mensuales, cualquier cancelación impacta fuerte. Necesitás escalar la adquisición.' });
+    if (riesgos.length === 0) riesgos.push({ nivel:'low', titulo:'Perfil de riesgo bajo', desc:'Tu negocio no presenta riesgos críticos evidentes. Mantené el foco en la ejecución y el crecimiento.' });
+
+    // ── RECOMENDACIONES ──
+    const recs = [];
+    if (margen < 40) recs.push({ icon:'💰', titulo:'Mejorá tu margen', desc:`Buscá reducir costos o aumentar el precio. Un margen del ${margen.toFixed(1)}% es ajustado. Apuntá a 40%+. Revisá proveedores, procesos y estructura de costos.` });
+    if (data.diferenciacion !== 'si-fuerte') recs.push({ icon:'🎯', titulo:'Definí tu propuesta de valor única', desc:'Respondé esta pregunta: ¿Por qué alguien te compraría a vos y no a la competencia? Esa respuesta tiene que ser clara, específica y difícil de copiar.' });
+    if (data.etapa === 'idea' || data.etapa === 'validando') recs.push({ icon:'🧪', titulo:'Validá antes de invertir fuerte', desc:'Hacé una pre-venta o MVP mínimo. Conseguí 5-10 clientes pagos antes de escalar. El mercado te va a decir la verdad.' });
+    if (data.canal === 'whatsapp' || data.canal === 'instagram') recs.push({ icon:'📣', titulo:'Diversificá tus canales de venta', desc:'No dependas de un solo canal. Combiná redes sociales con Mercado Libre, tu propia tienda y email marketing para reducir el riesgo.' });
+    recs.push({ icon:'📊', titulo:'Medí todo desde el día 1', desc:'Costo de adquisición de cliente (CAC), valor de vida del cliente (LTV), tasa de conversión. Sin métricas no podés mejorar lo que no medís.' });
+    if (score >= 60) recs.push({ icon:'🚀', titulo:'Escalá con cuidado', desc:'Antes de escalar, asegurate de que el proceso funcione bien a escala pequeña. Escalar un proceso roto solo amplifica los problemas.' });
+
+    // ── ESCENARIOS ──
+    const escenarios = [
+        {
+            nombre: 'Pesimista', icon: '📉', color: '#ef4444',
+            clientes: Math.round(data.clientes * 0.5),
+            ingreso12: proyeccion.map(p => p.ingreso * 0.5).reduce((a,b)=>a+b,0),
+            ganancia12: proyeccion.map(p => p.ganancia * 0.5).reduce((a,b)=>a+b,0) - data.inversion,
+            desc: 'Solo conseguís la mitad de los clientes esperados'
+        },
+        {
+            nombre: 'Base', icon: '📊', color: '#f59e0b',
+            clientes: data.clientes,
+            ingreso12: proyeccion.map(p => p.ingreso).reduce((a,b)=>a+b,0),
+            ganancia12: proyeccion.map(p => p.ganancia).reduce((a,b)=>a+b,0) - data.inversion,
+            desc: 'Cumplís exactamente con tus proyecciones'
+        },
+        {
+            nombre: 'Optimista', icon: '📈', color: '#10b981',
+            clientes: Math.round(data.clientes * 1.8),
+            ingreso12: proyeccion.map(p => p.ingreso * 1.8).reduce((a,b)=>a+b,0),
+            ganancia12: proyeccion.map(p => p.ganancia * 1.8).reduce((a,b)=>a+b,0) - data.inversion,
+            desc: 'Superás las expectativas en un 80%'
+        }
+    ];
+
+    return { veredicto, verdColor, verdIcon, verdText, proyeccion, mesesPayback, riesgos, recs, escenarios };
+}
+
+// ─────────────────────────────────────────────
+// RENDER RESULTADOS
+// ─────────────────────────────────────────────
+function renderResultados(data, calc, analisis) {
+    const { score, margen, gananciaNet, ingresoMensual, costoMensual, detalles } = calc;
+    const { veredicto, verdColor, verdIcon, verdText, proyeccion, mesesPayback, riesgos, recs, escenarios } = analisis;
+
+    // ── VEREDICTO ──
+    document.getElementById('verdict-badge-wrap').innerHTML = `
+        <div class="verdict-badge" style="background:${verdColor}22; border:2px solid ${verdColor}; color:${verdColor}; margin:0 auto; display:inline-flex;">
+            ${verdIcon} ${veredicto}
+        </div>`;
+    document.getElementById('verdict-text').textContent = verdText;
+
+    // ── SCORE RING ──
+    const deg = (score / 100) * 360;
+    const scoreColor = score >= 75 ? '#10b981' : score >= 55 ? '#f59e0b' : score >= 35 ? '#f97316' : '#ef4444';
+    const scoreRing = document.getElementById('score-ring');
+    scoreRing.style.setProperty('--score-color', scoreColor);
+    scoreRing.style.setProperty('--score-deg', deg + 'deg');
+    document.getElementById('score-num').textContent = score;
+    document.getElementById('score-num').style.color = scoreColor;
+    const scoreLabels = { 75:'EXCELENTE', 55:'MODERADO', 35:'RIESGOSO', 0:'CRÍTICO' };
+    const sl = Object.entries(scoreLabels).reverse().find(([k]) => score >= +k);
+    document.getElementById('score-label').textContent = sl ? sl[1] : 'CRÍTICO';
+    document.getElementById('score-label').style.color = scoreColor;
+    document.getElementById('score-desc').textContent = `Basado en ${Object.keys(detalles).length} factores clave del negocio`;
+
+    // ── MÉTRICAS ──
+    const metricas = [
+        { label:'Margen bruto', valor: margen.toFixed(1) + '%', color: margen >= 40 ? '#10b981' : margen >= 25 ? '#f59e0b' : '#ef4444', pct: clamp(margen, 0, 100), tip:'(Precio - Costo) / Precio × 100' },
+        { label:'Ingreso mensual est.', valor: fmt(ingresoMensual), color:'#60a5fa', pct: 70, tip:'Precio × Clientes esperados/mes' },
+        { label:'Ganancia neta/mes', valor: fmt(gananciaNet), color: gananciaNet > 0 ? '#10b981' : '#ef4444', pct: clamp((gananciaNet/Math.max(ingresoMensual,1))*100, 0, 100), tip:'Ingreso - Costos totales mensuales' },
+        { label:'Recupero inversión', valor: mesesPayback ? mesesPayback + ' meses' : (data.inversion === 0 ? 'Sin inversión' : '+12 meses'), color: mesesPayback && mesesPayback <= 6 ? '#10b981' : mesesPayback && mesesPayback <= 12 ? '#f59e0b' : '#ef4444', pct: mesesPayback ? clamp(100 - (mesesPayback/12)*100, 10, 100) : 20, tip:'Meses para recuperar la inversión inicial' },
+    ];
+    document.getElementById('metricas-wrap').innerHTML = metricas.map(m => `
+        <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span class="tooltip" data-tip="${m.tip}" style="font-size:13px; color:rgba(255,255,255,0.6);">${m.label} ℹ️</span>
+                <span style="font-size:15px; font-weight:700; color:${m.color};">${m.valor}</span>
+            </div>
+            <div class="meter-bar">
+                <div class="meter-fill" style="width:${m.pct}%; background:${m.color};"></div>
+            </div>
+        </div>`).join('');
+
+    // ── TAB FINANCIERO ──
+    const finCards = [
+        { label:'Precio de venta', val: fmt(data.precio), icon:'🏷️' },
+        { label:'Costo unitario', val: fmt(data.costo), icon:'📦' },
+        { label:'Margen bruto', val: margen.toFixed(1) + '%', icon:'💹' },
+        { label:'Clientes/mes', val: fmtNum(data.clientes), icon:'👥' },
+        { label:'Ingresos/mes', val: fmt(ingresoMensual), icon:'💵' },
+        { label:'Ganancia/mes', val: fmt(gananciaNet), icon:'🏦' },
+    ];
+    document.getElementById('fin-cards').innerHTML = finCards.map(c => `
+        <div class="card p-4 text-center">
+            <div style="font-size:24px; margin-bottom:8px;">${c.icon}</div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.5px;">${c.label}</div>
+            <div style="font-size:18px; font-weight:700; margin-top:4px; color:#fff;">${c.val}</div>
+        </div>`).join('');
+
+    const puntoEquilibrio = data.costo > 0 && data.precio > data.costo
+        ? Math.ceil(data.inversion / (data.precio - data.costo))
+        : null;
+
+    document.getElementById('fin-analisis').innerHTML = `
+        <div class="card p-5" style="background:rgba(255,255,255,0.03);">
+            <h4 style="font-weight:700; margin-bottom:12px; color:#a78bfa;">📐 Análisis financiero detallado</h4>
+            <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
+                <li>• <strong>Punto de equilibrio:</strong> ${puntoEquilibrio ? fmtNum(puntoEquilibrio) + ' unidades vendidas para recuperar la inversión' : 'No aplica (sin inversión inicial)'}</li>
+                <li>• <strong>ROI anual estimado:</strong> ${data.inversion > 0 ? (((gananciaNet * 12) / data.inversion) * 100).toFixed(0) + '%' : 'N/A'}</li>
+                <li>• <strong>Ganancia acumulada a 12 meses:</strong> ${fmt(proyeccion[11].acumulado)}</li>
+                <li>• <strong>Ingreso total año 1:</strong> ${fmt(proyeccion.reduce((a,p)=>a+p.ingreso,0))}</li>
+                <li>• <strong>Costo total año 1:</strong> ${fmt(proyeccion.reduce((a,p)=>a+p.costo,0))}</li>
+                <li>• <strong>Ganancia bruta año 1:</strong> ${fmt(proyeccion.reduce((a,p)=>a+p.ganancia,0))}</li>
+            </ul>
+        </div>`;
+
+    // ── TAB MERCADO ──
+    const compLabels = { 'baja':'Baja', 'media':'Media', 'alta':'Alta', 'muy-alta':'Muy alta' };
+    const difLabels = { 'si-fuerte':'Ventaja fuerte', 'si-debil':'Ventaja débil', 'no':'Sin diferenciación', 'no-se':'No analizado' };
+    const canalLabels = { 'instagram':'Instagram/Redes', 'mercadolibre':'Mercado Libre', 'tienda-propia':'Tienda propia', 'local':'Local físico', 'b2b':'Venta B2B', 'whatsapp':'WhatsApp', 'mixto':'Multicanal' };
+    const catLabels = { 'tech':'Tecnología', 'ecommerce':'E-commerce', 'food':'Gastronomía', 'ropa':'Indumentaria', 'servicio':'Servicios', 'educacion':'Educación', 'salud':'Salud/Bienestar', 'inmobiliario':'Inmobiliario', 'agro':'Agro', 'otro':'Otro' };
+
+    document.getElementById('mercado-left').innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            ${[
+                { label:'Categoría', val: catLabels[data.categoria] || data.categoria },
+                { label:'Competencia', val: compLabels[data.competencia] || data.competencia },
+                { label:'Diferenciación', val: difLabels[data.diferenciacion] || data.diferenciacion },
+                { label:'Canal principal', val: canalLabels[data.canal] || data.canal },
+            ].map(r => `
+                <div class="card p-4" style="background:rgba(255,255,255,0.03);">
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4); text-transform:uppercase;">${r.label}</div>
+                    <div style="font-weight:600; margin-top:4px;">${r.val || '—'}</div>
+                </div>`).join('')}
+        </div>`;
+
+    document.getElementById('mercado-right').innerHTML = `
+        <div class="card p-5" style="background:rgba(255,255,255,0.03); height:100%;">
+            <h4 style="font-weight:700; margin-bottom:12px; color:#a78bfa;">🎯 Público objetivo</h4>
+            <p style="color:rgba(255,255,255,0.7); font-size:14px; line-height:1.7;">${data.publico || 'No especificado'}</p>
+            <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.1);">
+                <h4 style="font-weight:700; margin-bottom:8px; color:#a78bfa;">📋 Etapa del negocio</h4>
+                <p style="color:rgba(255,255,255,0.7); font-size:14px;">${
+                    { 'idea':'Idea — Etapa más temprana. Máximo riesgo, máxima flexibilidad.',
+                      'validando':'Validando — Buen momento para ajustar antes de escalar.',
+                      'mvp':'MVP listo — Hora de conseguir tracción real.',
+                      'lanzado':'Lanzado — Enfocate en métricas y optimización.',
+                      'escalando':'Escalando — Protegé el margen mientras crecés.' }[data.etapa] || data.etapa
+                }</p>
+            </div>
+        </div>`;
+
+    // ── TAB RIESGOS ──
+    document.getElementById('riesgos-list').innerHTML = riesgos.map(r => `
+        <div class="card p-5 risk-item risk-${r.nivel}" style="background:rgba(255,255,255,0.03);">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <span style="font-size:18px;">${r.nivel==='high'?'🔴':r.nivel==='med'?'🟡':'🟢'}</span>
+                <strong style="font-size:15px;">${r.titulo}</strong>
+                <span style="font-size:11px; padding:2px 8px; border-radius:99px; background:${r.nivel==='high'?'rgba(239,68,68,0.2)':r.nivel==='med'?'rgba(245,158,11,0.2)':'rgba(16,185,129,0.2)'}; color:${r.nivel==='high'?'#ef4444':r.nivel==='med'?'#f59e0b':'#10b981'}; margin-left:auto;">${r.nivel==='high'?'ALTO':r.nivel==='med'?'MEDIO':'BAJO'}</span>
+            </div>
+            <p style="font-size:13px; color:rgba(255,255,255,0.6); line-height:1.6;">${r.desc}</p>
+        </div>`).join('');
+
+    // ── TAB PROYECCIÓN ──
+    const maxIngreso = Math.max(...proyeccion.map(p => p.ingreso));
+    const colors = ['#7c3aed','#6d28d9','#5b21b6','#4c1d95','#3b0764','#2e1065','#1e1b4b','#312e81','#3730a3','#4338ca','#4f46e5','#6366f1'];
+    document.getElementById('chart-bars').innerHTML = proyeccion.map((p,i) => `
+        <div class="chart-bar" style="height:${Math.round((p.ingreso/maxIngreso)*100)}%; background:linear-gradient(to top, ${colors[i]}, #a78bfa);">
+            <span>M${p.mes}</span>
+        </div>`).join('');
+
+    document.getElementById('proyeccion-tabla').innerHTML = `
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                <thead>
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                        ${['Mes','Clientes','Ingresos','Costos','Ganancia','Acumulado'].map(h=>`<th style="padding:8px 12px; text-align:right; color:rgba(255,255,255,0.5); font-weight:600;">${h}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${proyeccion.map((p,i) => `
+                        <tr style="border-bottom:1px solid rgba(255,255,255,0.05); ${p.acumulado >= 0 ? 'background:rgba(16,185,129,0.05);' : ''}">
+                            <td style="padding:8px 12px; text-align:right; color:rgba(255,255,255,0.7);">Mes ${p.mes}</td>
+                            <td style="padding:8px 12px; text-align:right;">${fmtNum(p.clientes)}</td>
+                            <td style="padding:8px 12px; text-align:right; color:#60a5fa;">${fmt(p.ingreso)}</td>
+                            <td style="padding:8px 12px; text-align:right; color:#f87171;">${fmt(p.costo)}</td>
+                            <td style="padding:8px 12px; text-align:right; color:${p.ganancia>=0?'#34d399':'#f87171'};">${fmt(p.ganancia)}</td>
+                            <td style="padding:8px 12px; text-align:right; font-weight:700; color:${p.acumulado>=0?'#34d399':'#f87171'};">${fmt(p.acumulado)}</td>
+                        </tr>`).join('')}
+                </tbody>
+            </table>
+        </div>`;
+
+    // ── TAB RECOMENDACIONES ──
+    document.getElementById('recomendaciones-list').innerHTML = recs.map((r,i) => `
+        <div class="card p-5 fade-in" style="background:rgba(255,255,255,0.03); animation-delay:${i*0.1}s;">
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+                <div style="font-size:28px; flex-shrink:0;">${r.icon}</div>
+                <div>
+                    <h4 style="font-weight:700; font-size:15px; margin-bottom:6px;">${r.titulo}</h4>
+                    <p style="font-size:13px; color:rgba(255,255,255,0.65); line-height:1.7;">${r.desc}</p>
+                </div>
+            </div>
+        </div>`).join('');
+
+    // ── ESCENARIOS ──
+    document.getElementById('escenarios-wrap').innerHTML = escenarios.map(e => `
+        <div class="card p-5 text-center" style="background:rgba(255,255,255,0.03); border-color:${e.color}44;">
+            <div style="font-size:28px; margin-bottom:8px;">${e.icon}</div>
+            <div style="font-weight:700; font-size:16px; color:${e.color}; margin-bottom:4px;">${e.nombre}</div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:16px;">${e.desc}</div>
+            <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:12px; display:flex; flex-direction:column; gap:8px;">
+                <div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4);">Clientes/mes (mes 12)</div>
+                    <div style="font-weight:700; font-size:18px;">${fmtNum(e.clientes)}</div>
+                </div>
+                <div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4);">Ingresos año 1</div>
+                    <div style="font-weight:700; font-size:15px; color:#60a5fa;">${fmt(e.ingreso12)}</div>
+                </div>
+                <div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.4);">Resultado neto año 1</div>
+                    <div style="font-weight:700; font-size:15px; color:${e.ganancia12>=0?'#34d399':'#f87171'};">${fmt(e.ganancia12)}</div>
+                </div>
+            </div>
+        </div>`).join('');
+
+    // ── ACCIÓN FINAL ──
+    const acciones = {
+        75: { icon:'🚀', titulo:'¡Adelante! Ejecutá con foco', texto:'Tu negocio tiene buenas bases. El próximo paso es conseguir tus primeros 10 clientes pagos y medir todo. La ejecución lo es todo.' },
+        55: { icon:'⚡', titulo:'Ajustá y luego acelerá', texto:'Antes de invertir fuerte, mejorá los puntos débiles identificados. Hacé una prueba pequeña y validá los números reales.' },
+        35: { icon:'🔧', titulo:'Rediseñá el modelo primero', texto:'No gastes dinero todavía. Trabajá en mejorar el margen, la diferenciación y validá que hay demanda real antes de invertir.' },
+        0:  { icon:'🛑', titulo:'Pausá y replantéate todo', texto:'Los números actuales no son viables. Necesitás un cambio significativo en el modelo de negocio, el precio o el mercado objetivo.' }
+    };
+    const accion = Object.entries(acciones).reverse().find(([k]) => score >= +k);
+    const a = accion ? accion[1] : acciones[0];
+    document.getElementById('accion-icon').textContent = a.icon;
+    document.getElementById('accion-titulo').textContent = a.titulo;
+    document.getElementById('accion-texto').textContent = a.texto;
+}
+
+// ─────────────────────────────────────────────
+// FUNCIÓN PRINCIPAL
+// ─────────────────────────────────────────────
+async function analizarNegocio() {
+    // Recopilar datos
+    const data = {
+        nombre:         document.getElementById('inp-nombre').value.trim(),
+        categoria:      document.getElementById('inp-categoria').value,
+        etapa:          document.getElementById('inp-etapa').value,
+        precio:         parseFloat(document.getElementById('inp-precio').value) || 0,
+        costo:          parseFloat(document.getElementById('inp-costo').value) || 0,
+        inversion:      parseFloat(document.getElementById('inp-inversion').value) || 0,
+        clientes:       parseFloat(document.getElementById('inp-clientes').value) || 0,
+        competencia:    document.getElementById('inp-competencia').value,
+        diferenciacion: document.getElementById('inp-diferenciacion').value,
+        publico:        document.getElementById('inp-publico').value.trim(),
+        canal:          document.getElementById('inp-canal').value,
+        experiencia:    document.getElementById('inp-experiencia').value,
+        descripcion:    document.getElementById('inp-descripcion').value.trim(),
+    };
+
+    // Validación mínima
+    if (!data.nombre || !data.categoria || data.precio === 0) {
+        alert('Por favor completá al menos: nombre del producto, categoría y precio de venta.');
+        return;
+    }
+
+    // Ocultar form, mostrar loader
+    document.getElementById('form-card').style.display = 'none';
+    const loader = document.getElementById('loader');
+    loader.classList.add('visible');
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Simular pasos de análisis con delays
+    const steps = ['ls1','ls2','ls3','ls4','ls5'];
+    const msgs = [
+        'Calculando márgenes y rentabilidad...',
+        'Analizando mercado y competencia...',
+        'Evaluando riesgos del negocio...',
+        'Proyectando flujo de caja a 12 meses...',
+        'Generando recomendaciones personalizadas...'
+    ];
+    for (let i = 0; i < steps.length; i++) {
+        await new Promise(r => setTimeout(r, 500 + Math.random() * 400));
+        document.getElementById('loader-msg').textContent = msgs[i];
+        document.getElementById(steps[i]).textContent = '✅ ' + msgs[i].replace('...','');
+        document.getElementById(steps[i]).style.opacity = '1';
+        if (i + 1 < steps.length) document.getElementById(steps[i+1]).style.opacity = '0.7';
+    }
+
+    await new Promise(r => setTimeout(r, 600));
+
+    // Calcular y renderizar
+    const calc = calcularScore(data);
+    const analisis = generarAnalisis(data, calc);
+
+    // Ocultar loader, mostrar resultados
+    loader.classList.remove('visible');
+    const panel = document.getElementById('result-panel');
+    panel.style.display = 'block';
+    panel.classList.add('visible');
+    setStep(3);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    renderResultados(data, calc, analisis);
+}
+</script>
+
+</body>
+</html>
